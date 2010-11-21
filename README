@@ -1,0 +1,20 @@
+Taunter - README
+
+
+/--- Features ---/
+
+TODO
+
+( o Y o)
+ )    (
+(   Y  )
+
+/--- Installation ---/
+
+*** Linux
+sudo aptitude install ipython python-matplotlib enthought-traits
+
+*** Windows, linux and mac
+Take a look at
+http://www.enthought.com/products/open-source-products.php
+http://www.pythonxy.com/

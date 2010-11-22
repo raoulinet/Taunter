@@ -16,6 +16,16 @@ color_corr = {
 	"k": "black"
 	}
 
+color_list = [
+	"b",
+	"g",
+	"r",
+	"c",
+	"m",
+	"y",
+	"w",
+	"k"
+	]
 
 curve_line = {
 	"none":"None",
@@ -200,7 +210,7 @@ class JSONgraph():
 	figure = None
 	figure_dict = {}
 
-	def _get_dict(self):
+	def __init__(self):
 		self.figure = gcf()
 		
 		self.figure_dict = {}
@@ -309,112 +319,6 @@ class JSONgraph():
 				self.figure_dict["axes"].append(_axis_dict)
 
 
-	def _apply_dict(self):
-		self.figure = graph()
-		
-		self.figure.set_alpha(self.figure_dict["alpha"])
-		self.figure.set_animated(self.figure_dict["animated"])
-		self.figure.set_clip_on(self.figure_dict["clip_on"])
-		self.figure.set_dpi(self.figure_dict["dpi"])
-		self.figure.set_edgecolor(self.figure_dict["edgecolor"])
-		self.figure.set_facecolor(self.figure_dict["facecolor"])
-		self.figure.set_figheight(self.figure_dict["figheight"])
-		self.figure.set_figwidth(self.figure_dict["figwidth"])
-		self.figure.set_frameon(self.figure_dict["frameon"])
-		self.figure.set_label(self.figure_dict["label"])
-		self.figure.set_visible(self.figure_dict["visible"])
-
-		N_axes = len(self.figure_dict["axes"])
-		n_axes = 0
-		if  N_axes > 0:
-			for _axis_dict in self.figure_dict["axes"]:
-
-				add_subplot(1, N_axes, n_axes + 1)
-
-				self.figure.axes[n_axes].set_adjustable(_axis_dict["adjustable"]) 
-				self.figure.axes[n_axes].set_alpha(_axis_dict["alpha"])
-				self.figure.axes[n_axes].set_anchor(_axis_dict["anchor"])
-				self.figure.axes[n_axes].set_animated(_axis_dict["animated"])
-				self.figure.axes[n_axes].set_aspect(_axis_dict["aspect"])
-				self.figure.axes[n_axes].set_autoscale_on(_axis_dict["autoscale_on"])
-				self.figure.axes[n_axes].set_axis_bgcolor(_axis_dict["axis_bgcolor"])
-				self.figure.axes[n_axes].set_axisbelow(_axis_dict["axisbelow"])
-				self.figure.axes[n_axes].set_clip_on(_axis_dict["clip_on"])
-				self.figure.axes[n_axes].set_frame_on(_axis_dict["frame_on"])
-				self.figure.axes[n_axes].set_label(_axis_dict["label"])
-				self.figure.axes[n_axes].set_position(_axis_dict["position"])
-				self.figure.axes[n_axes].set_title(_axis_dict["title"])
-				self.figure.axes[n_axes].set_visible(_axis_dict["visible"])
-				self.figure.axes[n_axes].set_xlabel(_axis_dict["xlabel"])
-				self.figure.axes[n_axes].set_xscale(_axis_dict["xscale"])
-				self.figure.axes[n_axes].set_ylabel(_axis_dict["ylabel"])
-				self.figure.axes[n_axes].set_yscale(_axis_dict["yscale"])
-				self.figure.axes[n_axes].set_zorder(_axis_dict["zorder"])
-
-				_axis_dict["lines"] = []
-				_axis_dict["texts"] = []
-
-				if len(_axis.lines) > 0:
-					for _line in _axis.lines:
-						
-						_line_dict = {}
-
-						_line_dict["alpha"] = _line.get_alpha()
-						_line_dict["animated"] = _line.get_animated()
-						_line_dict["antialiased"] = _line.get_antialiased()
-						_line_dict["clip_on"] = _line.get_clip_on()
-						_line_dict["color"] = _line.get_color()
-						_line_dict["dash_capstyle"] = _line.get_dash_capstyle()
-						_line_dict["dash_joinstyle"] = _line.get_dash_joinstyle()
-						_line_dict["drawstyle"] = _line.get_drawstyle()
-						_line_dict["label"] = _line.get_label()
-						_line_dict["linestyle"] = _line.get_linestyle()
-						_line_dict["linewidth"] = _line.get_linewidth()
-						_line_dict["marker"] = _line.get_marker()
-						_line_dict["markeredgecolor"] = _line.get_markeredgecolor()
-						_line_dict["markeredgewidth"] = _line.get_markeredgewidth()
-						_line_dict["markerfacecolor"] = _line.get_markerfacecolor()
-						_line_dict["markersize"] = _line.get_markersize()
-						_line_dict["solid_capstyle"] = _line.get_solid_capstyle()
-						_line_dict["solid_joinstyle"] = _line.get_solid_joinstyle()
-						_line_dict["visible"] = _line.get_visible()
-						_line_dict["xdata"] = list(_line.get_xdata())
-						_line_dict["ydata"] = list(_line.get_ydata())
-						_line_dict["zorder"] = _line.get_zorder()
-
-						_axis_dict["lines"].append(_line_dict)
-				
-				if len(_axis.texts) > 0:
-					for _text in _axis.texts:
-
-						_text_dict = {}
-
-						_text_dict["alpha"] = _text.get_alpha()
-						_text_dict["animated"] = _text.get_animated()
-						_text_dict["bbox_patch"] = _text.get_bbox_patch()
-						_text_dict["clip_on"] = _text.get_clip_on()
-						_text_dict["color"] = _text.get_color()
-						_text_dict["family"] = _text.get_family()
-						_text_dict["figure"] = _text.get_figure()
-						_text_dict["horizontalalignment"] = _text.get_horizontalalignment()
-						_text_dict["label"] = _text.get_label()
-						_text_dict["name"] = _text.get_name()
-						_text_dict["position"] = _text.get_position()
-						_text_dict["rotation"] = _text.get_rotation()
-						_text_dict["size"] = _text.get_size()
-						_text_dict["stretch"] = _text.get_stretch()
-						_text_dict["style"] = _text.get_style()
-						_text_dict["text"] = _text.get_text()
-						_text_dict["variant"] = _text.get_variant()
-						_text_dict["verticalalignment"] = _text.get_verticalalignment()
-						_text_dict["visible"] = _text.get_visible()
-						_text_dict["weight"] = _text.get_weight()
-						_text_dict["zorder"] = _text.get_zorder()
-
-						_axis_dict["texts"].append(_text_dict)
-
-				self.figure_dict["axes"].append(_axis_dict)
-
 	
 	def save(self, fname = None):
 		if fname == None:
@@ -453,10 +357,10 @@ class openNanoQtgraph():
 				curveline.set_linestyle(curve_line[dictdata["curves"][n]["options"]["pen_style"]])
 				curveline.set_linewidth(dictdata["curves"][n]["options"]["pen_width"])
 				if str(dictdata["curves"][n]["options"]["pen_color"]).startswith("#"):
-					tmp_col = hex_to_normalized_tuple(str(dictdata["curves"][n]["options"]["pen_color"]))
-					curveline.set_color(tmp_col)
-					curveline.set_markeredgecolor(tmp_col)
-					curveline.set_markerfacecolor(tmp_col)
+					# tmp_col = hex_to_normalized_tuple(str(dictdata["curves"][n]["options"]["pen_color"]))
+					curveline.set_color(color_list[n%7])
+					curveline.set_markeredgecolor(color_list[n%7])
+					curveline.set_markerfacecolor(color_list[n%7])
 				curveline.set_marker(curve_marker[dictdata["curves"][n]["options"]["symbol"]])
 				curveline.set_markersize(dictdata["curves"][n]["options"]["symbol_size"])
 		draw()

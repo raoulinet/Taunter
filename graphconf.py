@@ -62,8 +62,7 @@ def strlist(a):
 	return str(list(a))
 
 
-
-def hex_to_tuple(a):
+def hex_diese_to_tuple(a):
 	"""
 	Convert a hexa color #8B0000 to RGB tuple
 	(255, 255, 255)
@@ -73,8 +72,17 @@ def hex_to_tuple(a):
 	return (eval("0x" + a[0:2]), eval("0x" + a[2:4]), eval("0x" + a[4:6]))
 
 
+def hex_x_to_tuple(a):
+	"""
+	Convert a hexa color 0x8B0000 to RGB tuple
+	(255, 255, 255)
+	"""
 
-def hex_to_normalized_tuple(a):
+	a.replace("0x", "")
+	return (eval("0x" + a[0:2]), eval("0x" + a[2:4]), eval("0x" + a[4:6]))
+
+
+def hex_diese_to_normalized_tuple(a):
 	"""
 	Convert a hexa color #8B0000 to normalized RGB tuple
 	(1.0, 1.0, 1.0)
@@ -83,6 +91,15 @@ def hex_to_normalized_tuple(a):
 	a.replace("#", "")
 	return (eval("0x" + a[4:6])/255., eval("0x" + a[2:4])/255., eval("0x" + a[0:2])/255.)
 
+
+def hex_x_to_normalized_tuple(a):
+	"""
+	Convert a hexa color #8B0000 to normalized RGB tuple
+	(1.0, 1.0, 1.0)
+	"""
+
+	a.replace("0x", "")
+	return (eval("0x" + a[4:6])/255., eval("0x" + a[2:4])/255., eval("0x" + a[0:2])/255.)
 
 
 def colorize(col_tuple = (1.0, 0.0, 0.0), forward=True):
@@ -101,6 +118,18 @@ def colorize(col_tuple = (1.0, 0.0, 0.0), forward=True):
 		gca().lines[i].set_markeredgecolor((tmp_col[0], tmp_col[1], tmp_col[2]))
 	draw()
 
+
+def get_data(layer = -1):
+	return gca().lines[layer].get_data()
+
+
+def rotate_graph(theta = 0):
+	for i in gca().lines:
+		_x1, _y1 = i.get_data()
+		i.set_xdata(cos(theta) * _x1 + sin(theta) * _y1)
+		i.set_ydata(-sin(theta) * _x1 + cos(theta) * _y1)
+	draw()
+	
 
 ################################################################################
 
@@ -355,11 +384,16 @@ class openNanoQtgraph():
 				curveline = self.ax.lines[-1]
 				curveline.set_linestyle(curve_line[dictdata["curves"][n]["options"]["pen_style"]])
 				curveline.set_linewidth(dictdata["curves"][n]["options"]["pen_width"])
-				if str(dictdata["curves"][n]["options"]["pen_color"]).startswith("#"):
-					# tmp_col = hex_to_normalized_tuple(str(dictdata["curves"][n]["options"]["pen_color"]))
-					curveline.set_color(color_list[n%7])
-					curveline.set_markeredgecolor(color_list[n%7])
-					curveline.set_markerfacecolor(color_list[n%7])
+				if str(dictdata["curves"][n]["options"]["pen_color"]).startswith("0x"):
+					tmp_col = hex_x_to_normalized_tuple(str(dictdata["curves"][n]["options"]["pen_color"]))
+					curveline.set_color(tmp_col)# color_list[n%7])
+					curveline.set_markeredgecolor(tmp_col)# color_list[n%7])
+					curveline.set_markerfacecolor(tmp_col)# color_list[n%7])
+				else:
+					curveline.set_color(dictdata["curves"][n]["options"]["pen_color"])
+					curveline.set_markeredgecolor(dictdata["curves"][n]["options"]["pen_color"])
+					curveline.set_markerfacecolor(dictdata["curves"][n]["options"]["pen_color"])
+
 				curveline.set_marker(curve_marker[dictdata["curves"][n]["options"]["symbol"]])
 				curveline.set_markersize(dictdata["curves"][n]["options"]["symbol_size"])
 		draw()

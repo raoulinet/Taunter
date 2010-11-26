@@ -123,13 +123,66 @@ def get_data(layer = -1):
 	return gca().lines[layer].get_data()
 
 
-def rotate_graph(theta = 0):
+def rotate_data(theta = 0):
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
 		i.set_xdata(cos(theta) * _x1 + sin(theta) * _y1)
 		i.set_ydata(-sin(theta) * _x1 + cos(theta) * _y1)
 	draw()
 	
+
+
+def move_data(displacement = 0):
+	for i in gca().lines:
+		_x1, _y1 = i.get_data()
+		i.set_xdata(_x1 + displacement[0])
+		i.set_ydata(_y1 + displacement[1])
+	draw()
+
+
+def rotate_data_by_mouse():
+	_p = ginput(2, show_clicks=False)
+	if len(_p) < 2:
+		return
+	dtheta = arctan2(_p[1][1], _p[1][0]) - arctan2(_p[0][1], _p[0][0])
+	print("dtheta: " + str(dtheta))
+	for i in gca().lines:
+		_x1, _y1 = i.get_data()
+		i.set_xdata(cos(dtheta) * _x1 + sin(dtheta) * _y1)
+		i.set_ydata(-sin(dtheta) * _x1 + cos(dtheta) * _y1)
+	draw()
+
+
+def move_data_by_mouse(layer = None):
+	_p = ginput(2, show_clicks=False)
+	if len(_p) < 2:
+		return
+	xdisplacement = _p[1][0] - _p[0][0]
+	ydisplacement = _p[1][1] - _p[0][1]
+	print("dx: " + str(xdisplacement), "dy :" + str(ydisplacement))
+	if layer != None:
+		_x1, _y1 = gca().lines[layer].get_data()
+		gca().lines[layer].set_xdata(_x1 + xdisplacement)
+		gca().lines[layer].set_ydata(_y1 + ydisplacement)
+	
+	else:
+		for i in gca().lines:
+			_x1, _y1 = i.get_data()
+			i.set_xdata(_x1 + xdisplacement)
+			i.set_ydata(_y1 + ydisplacement)
+	draw()
+
+
+def get_index_list():
+	print("layer count: " + str(len(gca().lines)))
+	n = 0
+	for i in gca().lines:
+		print("# " + str(n), "marker: " + str(i.get_marker()), "line: " + str(i.get_linestyle()), "color: " + str(i.get_color()), "label: " + str(i.get_label()), "length: " + str(len(i.get_xdata())))
+		n += 1
+
+
+
+
 
 ################################################################################
 

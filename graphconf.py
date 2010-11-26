@@ -119,11 +119,15 @@ def colorize(col_tuple = (1.0, 0.0, 0.0), forward=True):
 	draw()
 
 
-def get_data(layer = -1):
+def get_data(fig = None, layer = -1):
+	if fig != None:
+		figure(fig)
 	return gca().lines[layer].get_data()
 
 
-def rotate_data(theta = 0):
+def rotate_data(fig = None, theta = 0):
+	if fig != None:
+		figure(fig)
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
 		i.set_xdata(cos(theta) * _x1 + sin(theta) * _y1)
@@ -132,7 +136,9 @@ def rotate_data(theta = 0):
 	
 
 
-def move_data(displacement = 0):
+def move_data(fig = None, displacement = 0):
+	if fig != None:
+		figure(fig)
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
 		i.set_xdata(_x1 + displacement[0])
@@ -140,11 +146,13 @@ def move_data(displacement = 0):
 	draw()
 
 
-def rotate_data_by_mouse():
+def rotate_data_by_mouse(fig = None):
+	if fig != None:
+		figure(fig)
 	_p = ginput(2, show_clicks=False)
 	if len(_p) < 2:
 		return
-	dtheta = arctan2(_p[1][1], _p[1][0]) - arctan2(_p[0][1], _p[0][0])
+	dtheta = - arctan2(_p[1][1], _p[1][0]) + arctan2(_p[0][1], _p[0][0])
 	print("dtheta: " + str(dtheta))
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
@@ -153,7 +161,9 @@ def rotate_data_by_mouse():
 	draw()
 
 
-def move_data_by_mouse(layer = None):
+def move_data_by_mouse(fig = None, layer = None):
+	if fig != None:
+		figure(fig)
 	_p = ginput(2, show_clicks=False)
 	if len(_p) < 2:
 		return
@@ -173,7 +183,9 @@ def move_data_by_mouse(layer = None):
 	draw()
 
 
-def get_index_list():
+def get_index_list(fig = None):
+	if fig != None:
+		figure(fig)
 	print("layer count: " + str(len(gca().lines)))
 	n = 0
 	for i in gca().lines:
@@ -181,8 +193,36 @@ def get_index_list():
 		n += 1
 
 
+def slice_graph(source_fig = None, drop_fig = None, begin = 0, end = 1, step = 1):
+	if drop_fig == None:
+		f = figure()
+		drop_fig = f.number
+	for i in range(begin, end, step):
+		figure(source_fig)
+		x, y = gca().lines[i].get_data()
+		marker = gca().lines[i].get_marker()
+		markersize = gca().lines[i].get_markersize()
+		linestyle = gca().lines[i].get_linestyle()
+		linewidth = gca().lines[i].get_linewidth()
+		color = gca().lines[i].get_color()
+		label = gca().lines[i].get_label()
+		figure(drop_fig)
+		plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)	
 
 
+def remove_line(fig = None, layer = -1):
+	if fig != None:
+		figure(fig)
+	gca().lines.pop(layer)
+	draw()
+
+def setline(fig = None, layer = -1, ls = "", lw = 2, c = "r"):
+	if fig != None:
+		figure(fig)
+	gca().lines[layer].set_ls(ls)
+	gca().lines[layer].set_lw(lw)
+	gca().lines[layer].set_c(c)
+	draw()
 
 ################################################################################
 
@@ -208,12 +248,16 @@ class Code(eta.HasTraits):
 
 ################################################################################
 
-def add_subplot(*args):
+def add_subplot(fig = None, *args):
+	if fig != None:
+		figure(fig)
 	gcf().add_subplot(*args)
 	draw()
 
 
-def get_axis(N = None):
+def get_axis(fig = None, N = None):
+	if fig != None:
+		figure(fig)
 	"""
 	function to handle axis in complexe subplot.
 	if N == None, return current axis, eq. gca()
@@ -230,7 +274,7 @@ def get_axis(N = None):
 		else:
 			return gcf().axes[N]
 
-class graph():
+class graph:
 	"""
 	Overlaod of figure() + plot() function
 	a 2 in 1
@@ -246,6 +290,14 @@ class graph():
 		self.f.set_facecolor("#dffa87")
 		self.p = plot(*args)
 
+
+class add_plot:
+	def __init__(self, fig = None, *args):
+		if fig != None:
+			self.f = figure(fig)
+		self.p = plot(*args)
+
+	
 
 
 class imgraph():
@@ -291,7 +343,9 @@ class JSONgraph():
 	figure = None
 	figure_dict = {}
 
-	def __init__(self):
+	def __init__(self, fig = None):
+		if fig != None:
+			figure(fig)
 		self.figure = gcf()
 		
 		self.figure_dict = {}
@@ -450,6 +504,18 @@ class openNanoQtgraph():
 				curveline.set_marker(curve_marker[dictdata["curves"][n]["options"]["symbol"]])
 				curveline.set_markersize(dictdata["curves"][n]["options"]["symbol_size"])
 		draw()
+
+
+
+class openTSVgraph():
+	def __init__(self, fname):
+		_data = csv2rec(fname, delimiter=" ")
+		graph()
+		for i in _data.dtype.names:
+			plot(_data[i])	
+			gca().lines[-1].set_label(i)
+		# legend()
+
 
 
 ################################################################################

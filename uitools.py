@@ -23,7 +23,7 @@ class Workspace(eta.HasTraits):
         """
         """
 
-        self._update_who(self)
+        self._update_who()
 
 
     def _update_who(self):
@@ -35,32 +35,7 @@ class Workspace(eta.HasTraits):
         self.ed.values = self.v
         self.ordered_set.editor = self.ed
 
-    def _to_std_repr(self, a):
-        """
-        """
-        
-        d = None
-
-        if type(a) == recarray:
-            k = a.dtype.names
-            k.sort()
-            d = {}
-            for i in k:
-                d[i] = list(a[i])
-
-        elif type(a) == dict:
-            d = a
-
-        elif type(a) == list or tuple:
-            d = list(a)
-
-        elif type(a) == int or float or bool:
-            d = a
-            
-        else:
-            return "unsupported"
-
-
+    
     def _update_fired(self):
         """
         update value or content of %who
@@ -107,6 +82,11 @@ class UiImport(eta.HasTraits):
     def _openNanoQtf_fired(self):
         self.data = sj.load(file(self.fname, "r"))
         openNanoQtgraph(self.data)
+
+
+    def _openTSVf_fired(self):
+        openTSVgraph(self.fname)
+
 
     view = etua.View(
         etua.Item("data", style="simple"),

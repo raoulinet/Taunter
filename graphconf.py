@@ -365,7 +365,7 @@ class colorgraph():
 	def __init__(self, *args):
 		self.f = figure()
 		self.f.set_facecolor("#fcd628")
-		self.i = pcolor(*args)
+		self.i = pcolormesh(*args)
 
 
 

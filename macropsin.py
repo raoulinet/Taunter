@@ -26,8 +26,8 @@ class Constants:
 		self.VOLUME = 1.13e-25 # m3
 		self.MU0 = pi * 4e-7 # T m A-1
 		self.NANOSECONDS = self.MAGNETIZATION * self.GAMMA_E # time unit  = 0.00312 ns
-		self.GHZ = 1 / self.NANOSECONDS # freq. unit = 320 GHz
-		self.TESLA = 1 / self.MAGNETIZATION # field unit = 1.816 T
+		self.GHZ = 1. / self.NANOSECONDS # freq. unit = 320 GHz
+		self.TESLA = 1. / self.MAGNETIZATION # field unit = 1.816 T
 		self.KELVIN = self.TESLA * self.KB
 		self.H_K = 0.3 * self.TESLA
 KONSTANTS = Constants()
@@ -35,14 +35,14 @@ KONSTANTS = Constants()
 
 class MacrospinParameters:
 
-	def __init__(self, gamma=1, alpha=0.01, K=array([0, 0, 1]), initial_magnetization=array([0, 0, 1])):
+	def __init__(self, gamma=1, alpha=0.01, K=array([0., 0., 1.]), initial_magnetization=array([0., 0., 1.])):
 		self.gamma = gamma
 		self.alpha = alpha
 		self.K = K * KONSTANTS.H_K/2.
 		self.initial_magnetization = initial_magnetization * KONSTANTS.TESLA
 		self.magnetization = copy(self.initial_magnetization)
 		self.magnetization_trajectory = None
-		self.energy = 0
+		self.energy = 0.
 
 	def view(self):
 		print("gamma: " + str(self.gamma))
@@ -59,14 +59,14 @@ class MacrospinParameters:
 		self.magnetization = divide(self.initial_magnetization, float(norm))
 
 
-	def energy(self, h_dc):
-		self.energy = - dot(h_dc, self.magnetization) - dot(self.K, sq(self.magnetization)) + h_dc[1]
+	def energy(self, h_dc, m):
+		return -1. * dot(h_dc, m) - dot(self.K, power(m, 2)) #+ h_dc[1]
 
 
 
 class MicrowaveParameters:
 
-	def __init__(self, amplitude = 0.01, length = 1., rise = 0.1, phi = array([0., 3., 0.])):
+	def __init__(self, amplitude = 0.1, length = 1., rise = 0.1, phi = array([0., 3., 0.])):
 		self.amplitude = amplitude * KONSTANTS.TESLA
 		self.length = length * KONSTANTS.NANOSECONDS
 		self.rise = rise * KONSTANTS.NANOSECONDS
@@ -96,7 +96,7 @@ class MicrowaveParameters:
 
 class FieldParameters:
 
-	def __init__(self, static_h=array([0., 0.1, -0.5])):
+	def __init__(self, static_h=array([0., 0.1, +0.5])):
 		self.static_h = static_h * KONSTANTS.H_K
 		self.h_K =array([0., 0., 0.])
 		self.h_dc = array([0., 0., 0.])
@@ -145,6 +145,30 @@ class MacrospinIntegration():
 		self.alpha = 0.
 
 		self.history = []
+		
+		self.t = []
+
+		self.mx = []
+		self.my = []
+		self.mz = []
+
+		self.hdcx = []
+		self.hdcy = []
+		self.hdcz = []
+
+		self.hKx = []
+		self.hKy = []
+		self.hKz = []
+
+		self.hacx = []
+		self.hacy = []
+		self.hacz = []
+
+		self.heffx = []
+		self.heffy = []
+		self.heffz = []
+
+		self.energy = []
 
 	def view(self):
 		print("macrospin: " + str(self.macrospin))
@@ -173,25 +197,25 @@ class MacrospinIntegration():
 	
 	def set_system_state(self, m, t):
 		self.fast_relax(t)
-		self.cutoff_field(m, t)
+		# self.cutoff_field(m, t)
 		self.field.anisotropy_field(self.macrospin.K, m)
 		self.field.static_field(m, t)
 		self.rf.microwave_field(t)
 		self.field.sumup_fields(self.rf.h_ac)
-		self.history.append([
-				t/KONSTANTS.NANOSECONDS,
-				m[0]/KONSTANTS.TESLA,
-				m[1]/KONSTANTS.TESLA,
-				m[2]/KONSTANTS.TESLA,
-				self.field.h_dc[0]/KONSTANTS.TESLA,
-				self.field.h_dc[1]/KONSTANTS.TESLA,
-				self.field.h_dc[2]/KONSTANTS.TESLA,
-				self.rf.h_ac[0]/KONSTANTS.TESLA,
-				self.rf.h_ac[1]/KONSTANTS.TESLA,
-				self.rf.h_ac[2]/KONSTANTS.TESLA
-			]
-		)
-
+		self.t.append(t/KONSTANTS.NANOSECONDS)
+		self.mx.append(m[0]/KONSTANTS.TESLA)
+		self.my.append(m[1]/KONSTANTS.TESLA)
+		self.mz.append(m[2]/KONSTANTS.TESLA)
+		self.hdcx.append(self.field.h_dc[0]/KONSTANTS.TESLA)
+		self.hdcy.append(self.field.h_dc[1]/KONSTANTS.TESLA)
+		self.hdcz.append(self.field.h_dc[2]/KONSTANTS.TESLA)
+		self.heffx.append(self.field.h_eff[0]/KONSTANTS.TESLA)
+		self.heffy.append(self.field.h_eff[1]/KONSTANTS.TESLA)
+		self.heffz.append(self.field.h_eff[2]/KONSTANTS.TESLA)
+		self.hacx.append(self.rf.h_ac[0]/KONSTANTS.TESLA)
+		self.hacy.append(self.rf.h_ac[1]/KONSTANTS.TESLA)
+		self.hacz.append(self.rf.h_ac[2]/KONSTANTS.TESLA)
+		# self.energy.append(self.macrospin.energy(self.field.h_dc, m))
 
 
 
@@ -204,4 +228,4 @@ def LLG(m, t, integrate):
 
 def do_integration(integrate):
 	integrate.macrospin.normalize()
-	integrate.macrospin.magnetization_trajectory = si.odeint(func=LLG, y0=integrate.macrospin.initial_magnetization, t=integrate.time_sequence, args=(integrate, ))
+	integrate.macrospin.magnetization_trajectory = si.odeint(func=LLG, y0=integrate.macrospin.magnetization, t=integrate.time_sequence, args=(integrate, ))

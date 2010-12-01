@@ -209,6 +209,16 @@ def slice_graph(source_fig = None, drop_fig = None, begin = 0, end = 1, step = 1
 		figure(drop_fig)
 		plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)	
 
+def get_norm_angle(fig = None):
+    if fig != None:
+        figure(fig)
+    a = ginput()[0]
+    return {
+        "norm": sqrt(a[0]**2 + a[1]**2),
+        "angle_rad": arctan2(a[1], a[0]),
+        "angle_deg": arctan2(a[1], a[0])*180./pi
+    }
+
 
 def remove_line(fig = None, layer = -1):
 	if fig != None:
@@ -216,13 +226,37 @@ def remove_line(fig = None, layer = -1):
 	gca().lines.pop(layer)
 	draw()
 
-def setline(fig = None, layer = -1, ls = "", lw = 2, c = "r"):
-	if fig != None:
-		figure(fig)
-	gca().lines[layer].set_ls(ls)
-	gca().lines[layer].set_lw(lw)
-	gca().lines[layer].set_c(c)
+
+def setline(fig = None, layer = None, line = "", width = 2, color = "r"):
+    if fig != None:
+        figure(fig)
+
+    if layer == None:
+        for i in gca().lines:
+            i.set_linestyle(line)
+            i.set_linewidth(width)
+    else:
+        gca().lines[layer].set_linestyle(line)
+        gca().lines[layer].set_linewidth(width)
+        gca().lines[layer].set_color(color)
 	draw()
+
+
+def setmarker(fig = None, layer = None, marker = "", size = 2, color = "r"):
+    if fig != None:
+        figure(fig)
+
+    if layer == None:
+        for i in gca().lines:
+            i.set_marker(marker)
+            i.set_markersize(size)
+    else:
+        gca().lines[layer].set_marker(marker)
+        gca().lines[layer].set_markersize(size)
+        gca().lines[layer].set_markerfacecolor(color)
+        gca().lines[layer].set_markeredgecolor(color)
+	draw()
+
 
 ################################################################################
 

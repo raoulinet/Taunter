@@ -22,6 +22,32 @@ def tsv2rec(fname):
     return csv2rec(fname, delimiter=" ")
 
 
+def build_waveform(waveform_description):
+    """
+      waveform = [
+      {"amplitude": 1, "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0},
+      {"amplitude": 0, "length": 1, "rise": 0.0, "frequency": 0, "phase": 0},
+      {"amplitude": 1, "length": 20, "rise": 0.2, "frequency": ,"phase": 0}
+      ]
+    """
+    
+    awg_samplingrate = 24.
+    waveform = []
+    for i in range(len(waveform_description)):
+        length = waveform_description[i]["length"]
+        N = round(length * awg_samplingrate)
+        rise = waveform_description[i]["rise"]
+        amplitude = waveform_description[i]["amplitude"]
+        frequency = waveform_description[i]["frequency"]
+        phase = waveform_description[i]["phase"]
+        for j in range(N):
+            t = j/awg_samplingrate
+            env = smooth(t, 0, rise) * (1 - smooth(t, length - rise, length)) 
+            waveform.append(512 + 511 * env * amplitude * sin(2 * pi * (phase/360. + frequency * t)))
+    waveform[len(waveform) - 1] = 511
+    return waveform;
+
+
 
 def E(m, k, h):
     return 1 - 0.5*k[0]*m[0]**2 - 0.5*k[1]*m[1]**2 - 0.5*k[2]*m[2]**2 + h[0]*m[0] + h[1]*m[1] + h[2]*m[2]
@@ -106,10 +132,10 @@ def line_matrix(fig = None, stepsize = 1):
 	if fig != None:
 		figure(fig)
 
-	xmin = gca().xbound()[0]
-	xmax = gca().xbound()[1]
-	ymin = gca().ybound()[0]
-	ymax = gca().ybound()[1]
+	xmin = gca().get_xbound()[0]
+	xmax = gca().get_xbound()[1]
+	ymin = gca().get_ybound()[0]
+	ymax = gca().get_ybound()[1]
 
 	dimx = arange(xmin, xmax, stepsize)
 	dimy = arange(ymin, ymax, stepsize)

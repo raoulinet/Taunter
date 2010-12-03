@@ -16,7 +16,7 @@ color_corr = {
 	"k": "black"
 	}
 
-color_list = [
+default_colors = [
 	"b",
 	"g",
 	"r",
@@ -24,7 +24,59 @@ color_list = [
 	"m",
 	"y",
 	"k"
-	]
+]
+
+
+
+web_colors = [
+	'maroon',
+	'red',
+	'purple',
+	'fuchsia',
+	'green',
+	'lime',
+	'olive',
+	'yellow',
+	'navy',
+	'blue',
+	'teal',
+	'aqua'
+]
+
+
+brown_colors = [
+	'cornsilk',
+	'blanchedalmond',
+	'bisque',
+	'navajowhite',
+	'wheat',
+	'burlywood',
+	'tan',
+	'rosybrown',
+	'sandybrown',
+	'goldenrod',
+	'darkgoldenrod',
+	'peru',
+	'chocolate',
+	'saddlebrown',
+	'sienna',
+	'brown',
+	'maroon'
+]
+
+fancy_colors = [
+	"orchid",
+	"firebrick",
+	"orange",
+	"peru",
+	"olive",
+	"saddlebrown",
+	"mediumseagreen",
+	"darkgreen",
+	"slategrey",
+	"skyblue",
+	"royalblue"
+]
 
 curve_line = {
 	"none":"None",
@@ -102,32 +154,35 @@ def hex_x_to_normalized_tuple(a):
 	return (eval("0x" + a[4:6])/255., eval("0x" + a[2:4])/255., eval("0x" + a[0:2])/255.)
 
 
-def colorize(col_tuple = (1.0, 0.0, 0.0), forward=True):
+def colorize(palette = "fancy", offset = 0):
 	"""
 	to colorize lines depdening of layers
 	"""
+	if palette == "fancy":
+		colors = fancy_colors
+	else:
+		if palette == "web":
+			colors = web_colors
+		else:
+			if palette == "brown":
+				colors = brown_colors
+			else:
+				colors = default_colors
 
 	n = len(gca().lines)
 	for i in range(n):
-		if forward == True:
-			tmp_col = array(col_tuple)*(i+1)/float(n)
-		else:
-			tmp_col = array(col_tuple)*(n - i)/float(n)
-		gca().lines[i].set_color((tmp_col[0], tmp_col[1], tmp_col[2]))
-		gca().lines[i].set_markerfacecolor((tmp_col[0], tmp_col[1], tmp_col[2]))
-		gca().lines[i].set_markeredgecolor((tmp_col[0], tmp_col[1], tmp_col[2]))
+		tmp_col = colors[(i + offset)%len(colors)]
+		gca().lines[i].set_color(tmp_col)
+		gca().lines[i].set_markerfacecolor(tmp_col)
+		gca().lines[i].set_markeredgecolor(tmp_col)
 	draw()
 
 
-def get_data(fig = None, layer = -1):
-	if fig != None:
-		figure(fig)
+def get_data(layer = -1):
 	return gca().lines[layer].get_data()
 
 
-def rotate_data(fig = None, theta = 0):
-	if fig != None:
-		figure(fig)
+def rotate_data(theta = 0):
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
 		i.set_xdata(cos(theta) * _x1 + sin(theta) * _y1)
@@ -136,9 +191,7 @@ def rotate_data(fig = None, theta = 0):
 	
 
 
-def move_data(fig = None, displacement = 0):
-	if fig != None:
-		figure(fig)
+def move_data(displacement = 0):
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
 		i.set_xdata(_x1 + displacement[0])
@@ -146,9 +199,7 @@ def move_data(fig = None, displacement = 0):
 	draw()
 
 
-def rotate_data_by_mouse(fig = None):
-	if fig != None:
-		figure(fig)
+def rotate_data_by_mouse():
 	_p = ginput(2, show_clicks=False)
 	if len(_p) < 2:
 		return
@@ -161,9 +212,7 @@ def rotate_data_by_mouse(fig = None):
 	draw()
 
 
-def move_data_by_mouse(fig = None, layer = None):
-	if fig != None:
-		figure(fig)
+def move_data_by_mouse(layer = None):
 	_p = ginput(2, show_clicks=False)
 	if len(_p) < 2:
 		return
@@ -183,35 +232,52 @@ def move_data_by_mouse(fig = None, layer = None):
 	draw()
 
 
-def get_index_list(fig = None):
-	if fig != None:
-		figure(fig)
+def get_index_list():
 	print("layer count: " + str(len(gca().lines)))
 	n = 0
 	for i in gca().lines:
-		print("# " + str(n), "marker: " + str(i.get_marker()), "line: " + str(i.get_linestyle()), "color: " + str(i.get_color()), "label: " + str(i.get_label()), "length: " + str(len(i.get_xdata())))
+		print("# " + str(n)+ ", marker: " + str(i.get_marker()) + ", line: " + str(i.get_linestyle()) + ", color: " + str(i.get_color()) + ", len: " + str(len(i.get_xdata())))
 		n += 1
 
 
-def slice_graph(source_fig = None, drop_fig = None, begin = 0, end = 1, step = 1):
-	if drop_fig == None:
-		f = figure()
-		drop_fig = f.number
+def set_label(layer, label):
+	gca().lines[layer].set_label(label)
+	draw()
+
+
+def slice_graph(begin = 0, end = None, step = 1):
+	source = gcf()
+	drop = figure()
+	if end == None:
+		end = len(source.axes[-1].lines)
 	for i in range(begin, end, step):
-		figure(source_fig)
-		x, y = gca().lines[i].get_data()
-		marker = gca().lines[i].get_marker()
-		markersize = gca().lines[i].get_markersize()
-		linestyle = gca().lines[i].get_linestyle()
-		linewidth = gca().lines[i].get_linewidth()
-		color = gca().lines[i].get_color()
-		label = gca().lines[i].get_label()
-		figure(drop_fig)
+		x, y = source.axes[-1].lines[i].get_data()
+		marker = source.axes[-1].lines[i].get_marker()
+		markersize = source.axes[-1].lines[i].get_markersize()
+		linestyle = source.axes[-1].lines[i].get_linestyle()
+		linewidth = source.axes[-1].lines[i].get_linewidth()
+		color = source.axes[-1].lines[i].get_color()
+		label = source.axes[-1].lines[i].get_label()
+		figure(drop.number)
 		plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)	
 
-def get_norm_angle(fig = None):
-    if fig != None:
-        figure(fig)
+
+def copy_paste_graph(source_fig, drop_fig):
+	source = figure(source_fig)
+	drop = figure(drop_fig)
+	for i in range(len(source.axes[-1].lines)):
+		x, y = source.axes[-1].lines[i].get_data()
+		marker = source.axes[-1].lines[i].get_marker()
+		markersize = source.axes[-1].lines[i].get_markersize()
+		linestyle = source.axes[-1].lines[i].get_linestyle()
+		linewidth = source.axes[-1].lines[i].get_linewidth()
+		color = source.axes[-1].lines[i].get_color()
+		label = source.axes[-1].lines[i].get_label()
+		figure(drop.number)
+		plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)	
+
+
+def get_norm_angle():
     a = ginput()[0]
     return {
         "norm": sqrt(a[0]**2 + a[1]**2),
@@ -220,17 +286,12 @@ def get_norm_angle(fig = None):
     }
 
 
-def remove_line(fig = None, layer = -1):
-	if fig != None:
-		figure(fig)
+def remove_line(layer = -1):
 	gca().lines.pop(layer)
 	draw()
 
 
-def setline(fig = None, layer = None, line = "", width = 2, color = "r"):
-    if fig != None:
-        figure(fig)
-
+def set_line(layer = None, line = "", width = 2, color = "r"):
     if layer == None:
         for i in gca().lines:
             i.set_linestyle(line)
@@ -240,12 +301,10 @@ def setline(fig = None, layer = None, line = "", width = 2, color = "r"):
         gca().lines[layer].set_linewidth(width)
         gca().lines[layer].set_color(color)
 	draw()
+    draw()
 
 
-def setmarker(fig = None, layer = None, marker = "", size = 2, color = "r"):
-    if fig != None:
-        figure(fig)
-
+def set_marker(layer = None, marker = "", size = 2, color = "r"):
     if layer == None:
         for i in gca().lines:
             i.set_marker(marker)
@@ -256,6 +315,41 @@ def setmarker(fig = None, layer = None, marker = "", size = 2, color = "r"):
         gca().lines[layer].set_markerfacecolor(color)
         gca().lines[layer].set_markeredgecolor(color)
 	draw()
+    draw()
+
+
+
+def line_matrix(xstep = 1, ystep = 1):
+
+	xmin = gca().get_xbound()[0]
+	xmax = gca().get_xbound()[1]
+	ymin = gca().get_ybound()[0]
+	ymax = gca().get_ybound()[1]
+
+
+	xx, yy = meshgrid(arange(xmin, xmax, xstep), arange(ymin, ymax, ystep))
+	
+	cc = +0*yy
+
+	print("grid xx: " + str(len(xx)) + "x" + str(len(xx[0])))
+	print("grid yy: " + str(len(yy)) + "x" + str(len(yy[0])))
+	print("grid cc: " + str(len(cc)) + "x" + str(len(cc[0])))
+
+	intx = range(xmin/xstep, xmax/xstep)
+	inty = range(ymin/ystep, ymax/ystep)
+	
+	n = 0
+	for i in gca().lines:
+		xdata, ydata = i.get_data()
+		print("extract layer " + str(n))
+		n += 1
+		for j in range(len(ydata)):
+			for k in range(len(xdata)):
+				print("cc[" + str(int(round((ydata[j] - ymin)/ystep))) + "][" + str(int(round((xdata[k] - xmin)/xstep))) + "] = " + str(n))
+				cc[int(round((ydata[j] - ymin)/ystep))][int(round((xdata[k] - xmin)/xstep))] = n
+
+	return xx, yy, cc
+
 
 
 ################################################################################
@@ -321,7 +415,7 @@ class graph:
 	def __init__(self, *args):
 		self.f = figure()
 		# add a fancy color on the graph's border
-		self.f.set_facecolor("#dffa87")
+		# self.f.set_facecolor("#dffa87")
 		self.p = plot(*args)
 
 
@@ -347,7 +441,7 @@ class imgraph():
 	def __init__(self, X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=1.0, vmin=None, vmax=None, origin="lower", extent=None, **kwargs):
 		self.f = figure()
 		# another fancy color
-		self.f.set_facecolor("#fcd628")
+		# self.f.set_facecolor("#fcd628")
 		self.i = imshow(X, cmap=cmap, norm=norm, aspect=aspect, interpolation=interpolation, alpha=alpha, vmin=vmin, vmax=vmax, origin=origin, extent=extent, **kwargs)
 
 
@@ -364,7 +458,7 @@ class colorgraph():
 	i = None
 	def __init__(self, *args):
 		self.f = figure()
-		self.f.set_facecolor("#fcd628")
+		#self.f.set_facecolor("#fcd628")
 		self.i = pcolormesh(*args)
 
 
@@ -548,8 +642,10 @@ class openTSVgraph():
 		for i in _data.dtype.names:
 			plot(_data[i])	
 			gca().lines[-1].set_label(i)
-		# legend()
-
+		legend()
+		title(fname)
+		xlabel("i")
+		ylabel("var")
 
 
 ################################################################################

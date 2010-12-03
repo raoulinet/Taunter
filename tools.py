@@ -128,36 +128,5 @@ def fit_leastsq(func = (lambda coef, a: coef[0] + coef[1] * a), data_X = [], dat
     return scipy.optimize.leastsq(errfunc, init_coef[:], args=(data_X, data_Y))
 
 
-def line_matrix(fig = None, stepsize = 1):
-	if fig != None:
-		figure(fig)
-
-	xmin = gca().get_xbound()[0]
-	xmax = gca().get_xbound()[1]
-	ymin = gca().get_ybound()[0]
-	ymax = gca().get_ybound()[1]
-
-	dimx = arange(xmin, xmax, stepsize)
-	dimy = arange(ymin, ymax, stepsize)
-	intx = range(xmin/stepsize, xmax/stepsize)
-	inty = range(ymin/stepsize, ymax/stepsize)
-
-	xx, yy = meshgrid(dimx, dimy)
-	
-	cc = +0*xx
-
-	print(len(xx), len(xx[0]))
-	print(len(yy), len(yy[0]))
-	print(len(cc), len(cc[0]))
-
-	n = 0
-	for i in gca().lines:
-		xdata, ydata = i.get_data()
-		print("layer n = " + str(n))
-		n += 1
-		for j in range(len(xdata)):
-			cc[int(round((ydata[j] - ymin)/stepsize))][int(round((xdata[j] - xmin)/stepsize))] = n
-
-	return xx, yy, cc
 
 

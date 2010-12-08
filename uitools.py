@@ -71,7 +71,7 @@ def workspace():
 
 class UiImport(eta.HasTraits):
     data = eta.Dict
-    fname = eta.File("/Users/raoul/")
+    fname = eta.File(_ip.magic("pwd "))
     openNanoQtf = eta.Button("Open NanoQt file")
     openTSVf = eta.Button("Open TSV file")
     

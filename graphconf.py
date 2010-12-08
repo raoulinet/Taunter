@@ -376,6 +376,191 @@ class Code(eta.HasTraits):
 
 ################################################################################
 
+rcParams = {
+	'agg.path.chunksize': 0,
+	'axes.axisbelow': False,
+	'axes.edgecolor': 'k',
+	'axes.facecolor': 'w',
+	'axes.formatter.limits': [-7, 7],
+	'axes.grid': False,
+	'axes.hold': True,
+	'axes.labelcolor': 'k',
+	'axes.labelsize': 'x-large', # 
+	'axes.linewidth': 1.0,
+	'axes.titlesize': 'x-large',
+	'axes.unicode_minus': True,
+	'backend': 'Agg',
+	'backend_fallback': True,
+	'cairo.format': 'png',
+	'contour.negative_linestyle': 'dashed',
+	'datapath': '/Library/Frameworks/Python.framework/Versions/4.3.0/lib/python2.5/site-packages/matplotlib-0.98.5.2n2-py2.5-macosx-10.3-fat.egg/matplotlib/mpl-data',
+	'docstring.hardcopy': False,
+	'figure.autolayout': False,
+	'figure.dpi': 80,
+	'figure.edgecolor': 'w',
+	'figure.facecolor': '0.75',
+	'figure.figsize': [8.0, 6.0],
+	'figure.subplot.bottom': 0.10000000000000001,
+	'figure.subplot.hspace': 0.20000000000000001,
+	'figure.subplot.left': 0.125,
+	'figure.subplot.right': 0.90000000000000002,
+	'figure.subplot.top': 0.90000000000000002,
+	'figure.subplot.wspace': 0.20000000000000001,
+	'font.cursive': ['Apple Chancery',
+		  'Textile',
+		  'Zapf Chancery',
+		  'Sand',
+		  'cursive'],
+	'font.family': 'serif', # 'sans-serif'
+	'font.fantasy': ['Comic Sans MS',
+		  'Chicago',
+		  'Charcoal',
+		  'ImpactWestern',
+		  'fantasy'],
+	'font.monospace': ['Bitstream Vera Sans Mono',
+		    'DejaVu Sans Mono',
+		    'Andale Mono',
+		    'Nimbus Mono L',
+		    'Courier New',
+		    'Courier',
+		    'Fixed',
+		    'Terminal',
+		    'monospace'],
+	'font.sans-serif': ['Bitstream Vera Sans',
+		     'DejaVu Sans',
+		     'Lucida Grande',
+		     'Verdana',
+		     'Geneva',
+		     'Lucid',
+		     'Arial',
+		     'Helvetica',
+		     'Avant Garde',
+		     'sans-serif'],
+	'font.serif': ['Bitstream Vera Serif',
+		'DejaVu Serif',
+		'New Century Schoolbook',
+		'Century Schoolbook L',
+		'Utopia',
+		'ITC Bookman',
+		'Bookman',
+		'Nimbus Roman No9 L',
+		'Times New Roman',
+		'Times',
+		'Palatino',
+		'Charter',
+		'serif'],
+	'font.size': 20.0, # 12.0
+	'font.stretch': 'normal',
+	'font.style': 'normal',
+	'font.variant': 'normal',
+	'font.weight': 'normal',
+	'grid.color': 'k',
+	'grid.linestyle': ':',
+	'grid.linewidth': 1, # 0.5
+	'image.aspect': 'equal',
+	'image.cmap': 'spectral', # 'jet'
+	'image.interpolation': 'nearest', # 'bilinear'
+	'image.lut': 256,
+	'image.origin': 'lower', # 'upper'
+	'image.resample': False,
+	'interactive': False,
+	'legend.axespad': 0.5,
+	'legend.borderaxespad': 0.5,
+	'legend.borderpad': 0.40000000000000002,
+	'legend.columnspacing': 2.0,
+	'legend.fancybox': True, # False
+	'legend.fontsize': 'x-large', # large
+	'legend.handlelen': 0.050000000000000003,
+	'legend.handlelength': 2.0,
+	'legend.handletextpad': 0.80000000000000004,
+	'legend.handletextsep': 0.02,
+	'legend.isaxes': True,
+	'legend.labelsep': 0.01,
+	'legend.labelspacing': 0.5,
+	'legend.loc': 'upper right',
+	'legend.markerscale': 1.0,
+	'legend.numpoints': 2,
+	'legend.pad': 0,
+	'legend.shadow': False,
+	'lines.antialiased': True,
+	'lines.color': 'b',
+	'lines.dash_capstyle': 'butt',
+	'lines.dash_joinstyle': 'miter',
+	'lines.linestyle': '-',
+	'lines.linewidth': 1.0,
+	'lines.marker': 'None',
+	'lines.markeredgewidth': 0.5,
+	'lines.markersize': 6,
+	'lines.solid_capstyle': 'projecting',
+	'lines.solid_joinstyle': 'miter',
+	'maskedarray': False,
+	'mathtext.bf': 'serif:bold',
+	'mathtext.cal': 'cursive',
+	'mathtext.fallback_to_cm': True,
+	'mathtext.fontset': 'cm',
+	'mathtext.it': 'serif:italic',
+	'mathtext.rm': 'serif',
+	'mathtext.sf': 'sans\\-serif',
+	'mathtext.tt': 'monospace',
+	'numerix': 'numpy',
+	'patch.antialiased': True,
+	'patch.edgecolor': 'k',
+	'patch.facecolor': 'b',
+	'patch.linewidth': 1.0,
+	'path.simplify': False,
+	'pdf.compression': 6,
+	'pdf.fonttype': 3,
+	'pdf.inheritcolor': False,
+	'pdf.use14corefonts': False,
+	'plugins.directory': '.matplotlib_plugins',
+	'polaraxes.grid': True,
+	'ps.distiller.res': 6000,
+	'ps.fonttype': 3,
+	'ps.papersize': 'letter',
+	'ps.useafm': False,
+	'ps.usedistiller': False,
+	'savefig.dpi': 100,
+	'savefig.edgecolor': 'w',
+	'savefig.facecolor': 'w',
+	'savefig.orientation': 'portrait',
+	'svg.embed_char_paths': True,
+	'svg.image_inline': True,
+	'svg.image_noscale': False,
+	'text.color': 'k',
+	'text.dvipnghack': None,
+	'text.fontangle': 'normal',
+	'text.fontsize': 'x-large',
+	'text.fontstyle': 'normal',
+	'text.fontvariant': 'normal',
+	'text.fontweight': 'normal',
+	'text.latex.preamble': [''],
+	'text.latex.unicode': False,
+	'text.usetex': False,
+	'timezone': 'UTC',
+	'tk.pythoninspect': False,
+	'tk.window_focus': False,
+	'toolbar': 'toolbar2',
+	'units': False,
+	'verbose.fileo': 'sys.stdout',
+	'verbose.level': 'silent',
+	'xtick.color': 'k',
+	'xtick.direction': 'out', # 'in'
+	'xtick.labelsize': 'x-large', # 'medium'
+	'xtick.major.pad': 4,
+	'xtick.major.size': 4,
+	'xtick.minor.pad': 4,
+	'xtick.minor.size': 2,
+	'ytick.color': 'k',
+	'ytick.direction': 'out', # 'in'
+	'ytick.labelsize': 'x-large', # 'medium'
+	'ytick.major.pad': 4,
+	'ytick.major.size': 4,
+	'ytick.minor.pad': 4,
+	'ytick.minor.size': 2
+}
+
+
+
 def add_subplot(fig = None, *args):
 	if fig != None:
 		figure(fig)
@@ -600,6 +785,7 @@ class openNanoQtgraph():
 	ax = None
 	def __init__(self, dictdata):
 		self.g = graph()
+		draw_legend = False;
 		self.ax = gca()
 		self.ax.set_title(dictdata["title"])
 		self.ax.set_xlabel(dictdata["x_label"])
@@ -617,6 +803,9 @@ class openNanoQtgraph():
 				curvex, curvey = hsplit(array(dictdata["curves"][n]["data"]), 2)
 				plot(curvex, curvey)
 				curveline = self.ax.lines[-1]
+				if dictdata["curves"][n]["options"].has_key("label"):
+					curveline.set_label(dictdata["curves"][n]["options"]["label"])
+					draw_legend = True; 
 				curveline.set_linestyle(curve_line[dictdata["curves"][n]["options"]["pen_style"]])
 				curveline.set_linewidth(dictdata["curves"][n]["options"]["pen_width"])
 				if str(dictdata["curves"][n]["options"]["pen_color"]).startswith("0x"):
@@ -631,6 +820,9 @@ class openNanoQtgraph():
 
 				curveline.set_marker(curve_marker[dictdata["curves"][n]["options"]["symbol"]])
 				curveline.set_markersize(dictdata["curves"][n]["options"]["symbol_size"])
+		if draw_legend:
+			legend() 
+
 		draw()
 
 

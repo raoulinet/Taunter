@@ -22,7 +22,17 @@ def tsv2rec(fname):
     return csv2rec(fname, delimiter=" ")
 
 
-def build_waveform(waveform_description):
+def smooth(t, begin, end):
+    if t < begin:
+        return 0
+    else:
+        if (t >= begin) and (t < end):
+            return (sin((pi/2.) * (t - begin)/(end - begin)))**2
+        else:
+            return 1
+
+
+def build_waveform(waveform_description, awg_samplingrate = 24):
     """
       waveform = [
       {"amplitude": 1, "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0},
@@ -31,7 +41,7 @@ def build_waveform(waveform_description):
       ]
     """
     
-    awg_samplingrate = 24.
+    awg_samplingrate = 1.*awg_samplingrate
     waveform = []
     for i in range(len(waveform_description)):
         length = waveform_description[i]["length"]
@@ -42,8 +52,8 @@ def build_waveform(waveform_description):
         phase = waveform_description[i]["phase"]
         for j in range(N):
             t = j/awg_samplingrate
-            env = smooth(t, 0, rise) * (1 - smooth(t, length - rise, length)) 
-            waveform.append(512 + 511 * env * amplitude * sin(2 * pi * (phase/360. + frequency * t)))
+            # env = smooth(t, 0, rise) * (1 - smooth(t, length - rise, length)) 
+            waveform.append(512 + 511 * amplitude * sin(2 * pi * (phase/360. + frequency * t)))
     waveform[len(waveform) - 1] = 511
     return waveform;
 

@@ -291,64 +291,72 @@ def remove_line(layer = -1):
 	draw()
 
 
-def set_line(layer = None, line = "", width = 2, color = "r"):
+def set_line(layer = None, line = None, width = None, color = None):
     if layer == None:
         for i in gca().lines:
-            i.set_linestyle(line)
-            i.set_linewidth(width)
+            if line:
+                i.set_linestyle(line)
+            if width:
+                i.set_linewidth(width)
     else:
-        gca().lines[layer].set_linestyle(line)
-        gca().lines[layer].set_linewidth(width)
-        gca().lines[layer].set_color(color)
-	draw()
+        if line:
+            gca().lines[layer].set_linestyle(line)
+        if width:
+            gca().lines[layer].set_linewidth(width)
+        if color:
+            gca().lines[layer].set_color(color)
     draw()
 
 
-def set_marker(layer = None, marker = "", size = 2, color = "r"):
+def set_marker(layer = None, marker = None, size = None, color = None):
     if layer == None:
         for i in gca().lines:
-            i.set_marker(marker)
-            i.set_markersize(size)
+            if marker:
+                i.set_marker(marker)
+            if size:
+                i.set_markersize(size)
     else:
-        gca().lines[layer].set_marker(marker)
-        gca().lines[layer].set_markersize(size)
-        gca().lines[layer].set_markerfacecolor(color)
-        gca().lines[layer].set_markeredgecolor(color)
-	draw()
+        if maker:
+            gca().lines[layer].set_marker(marker)
+        if size:
+            gca().lines[layer].set_markersize(size)
+        if color:
+            gca().lines[layer].set_markerfacecolor(color)
+            gca().lines[layer].set_markeredgecolor(color)
     draw()
 
 
 
 def line_matrix(xstep = 1, ystep = 1):
 
-	xmin = gca().get_xbound()[0]
-	xmax = gca().get_xbound()[1]
-	ymin = gca().get_ybound()[0]
-	ymax = gca().get_ybound()[1]
+    xmin = gca().get_xbound()[0]
+    xmax = gca().get_xbound()[1]
+    ymin = gca().get_ybound()[0]
+    ymax = gca().get_ybound()[1]
 
 
-	xx, yy = meshgrid(arange(xmin, xmax, xstep), arange(ymin, ymax, ystep))
-	
-	cc = +0*yy
+    xx, yy = meshgrid(arange(xmin, xmax, xstep), arange(ymin, ymax, ystep))
 
-	print("grid xx: " + str(len(xx)) + "x" + str(len(xx[0])))
-	print("grid yy: " + str(len(yy)) + "x" + str(len(yy[0])))
-	print("grid cc: " + str(len(cc)) + "x" + str(len(cc[0])))
+    cc = 0*yy
 
-	intx = range(xmin/xstep, xmax/xstep)
-	inty = range(ymin/ystep, ymax/ystep)
-	
-	n = 0
-	for i in gca().lines:
-		xdata, ydata = i.get_data()
-		print("extract layer " + str(n))
-		n += 1
-		for j in range(len(ydata)):
-			for k in range(len(xdata)):
-				print("cc[" + str(int(round((ydata[j] - ymin)/ystep))) + "][" + str(int(round((xdata[k] - xmin)/xstep))) + "] = " + str(n))
-				cc[int(round((ydata[j] - ymin)/ystep))][int(round((xdata[k] - xmin)/xstep))] = n
+    print("grid xx: " + str(len(xx)) + "x" + str(len(xx[0])))
+    print("grid yy: " + str(len(yy)) + "x" + str(len(yy[0])))
+    print("grid cc: " + str(len(cc)) + "x" + str(len(cc[0])))
 
-	return xx, yy, cc
+    intx = range(xmin/xstep, xmax/xstep)
+    inty = range(ymin/ystep, ymax/ystep)
+
+    for n in range(len(gca().lines)):
+        xdata, ydata = get_data(n)
+        print("extract layer " + str(n))
+        print("len x: " + str(len(xdata)))
+        print("len y: " + str(len(ydata)))
+        for j in range(len(ydata)):
+            for k in range(len(xdata)):
+                # print("cc[" + str(int(round((ydata[j] - ymin)/ystep))) + "][" + str(int(round((xdata[k] - xmin)/xstep))) + "] = " + str(n))
+                cc[int(round((ydata[j] - ymin)/ystep))][int(round((xdata[k] - xmin)/xstep))] = n
+
+    return xx, yy, cc
 
 
 

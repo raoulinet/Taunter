@@ -69,9 +69,14 @@ def workspace():
 
 ###################################################################################
 
+
+def openPLOT(fname):
+    openNanoQtgraph(sj.load(file(fname, "r")))
+
+
 class UiImport(eta.HasTraits):
     data = eta.Dict
-    fname = eta.File(_ip.magic("pwd "))
+    fname = eta.File()
     openNanoQtf = eta.Button("Open NanoQt file")
     openTSVf = eta.Button("Open TSV file")
     
@@ -90,10 +95,10 @@ class UiImport(eta.HasTraits):
 
     view = etua.View(
         etua.Item("data", style="simple"),
-        etua.Item("fname", style="custom"),
+        etua.Item("fname", editor=etua.FileEditor(filter=['*.plot']), style="custom"),
         etua.Item("openNanoQtf", show_label = False),
         etua.Item("openTSVf", show_label = False),
-        # resizable = True,
+        resizable = True,
         scrollable = True,
         height = 640,
         width = 800
@@ -103,3 +108,35 @@ class UiImport(eta.HasTraits):
 def uiimport(fname = ""):
     wxuiimport = UiImport(fname)
     wxuiimport.configure_traits()
+   
+
+
+
+################################################################################
+
+class Synchronize(eta.HasTraits):
+    target = eta.Str
+    source = eta.Str
+    RSYNC = eta.Button("RSYNC !!!")
+
+    def __init__(self):
+        self.target = ""
+        self.source = ""
+
+    def _RSYNC_fired(self):
+        os.system("rsync" + " -avz " + self.source.to + " " + self.target)
+
+    view = etua.View(
+        etua.Item("source"),
+        etua.Item("_"),
+        etua.Item("target"),
+        etua.Item("RSYNC", show_label=False),
+        resizable = True,
+        scrollable = True,
+        height = 100,
+        width = 800
+    )
+
+
+def synchronize():
+    uisynchronize = Synchronize().configure_traits()

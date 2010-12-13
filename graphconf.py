@@ -327,7 +327,7 @@ def set_marker(layer = None, marker = None, size = None, color = None):
 
 
 
-def line_matrix(xstep = 1, ystep = 1):
+def line_matrix(bottom = None, top = None, xstep = 1, ystep = 1):
 
     xmin = gca().get_xbound()[0]
     xmax = gca().get_xbound()[1]
@@ -337,24 +337,30 @@ def line_matrix(xstep = 1, ystep = 1):
 
     xx, yy = meshgrid(arange(xmin, xmax, xstep), arange(ymin, ymax, ystep))
 
-    cc = 0*yy
+    cc = 0*xx
 
     print("grid xx: " + str(len(xx)) + "x" + str(len(xx[0])))
     print("grid yy: " + str(len(yy)) + "x" + str(len(yy[0])))
     print("grid cc: " + str(len(cc)) + "x" + str(len(cc[0])))
 
-    intx = range(xmin/xstep, xmax/xstep)
-    inty = range(ymin/ystep, ymax/ystep)
+    intx = range((xmax - xmin)/xstep)
+    inty = range((ymax - ymin)/ystep)
+
+    print("inty, intx: " + str(len(inty)) + ", " + str(len(intx)))
 
     for n in range(len(gca().lines)):
-        xdata, ydata = get_data(n)
-        print("extract layer " + str(n))
-        print("len x: " + str(len(xdata)))
-        print("len y: " + str(len(ydata)))
-        for j in range(len(ydata)):
-            for k in range(len(xdata)):
-                # print("cc[" + str(int(round((ydata[j] - ymin)/ystep))) + "][" + str(int(round((xdata[k] - xmin)/xstep))) + "] = " + str(n))
-                cc[int(round((ydata[j] - ymin)/ystep))][int(round((xdata[k] - xmin)/xstep))] = n
+        if bottom != None:
+            if n < bottom:
+                n = bottom
+        if top != None:
+            if n > top:
+                n = top
+        data = gca().lines[n].get_xydata()
+        for i in range(len(data)):
+                j = (data[i][1] - ymin)/ystep
+                k = (data[i][0] - xmin)/xstep
+                print("j, k: " + str(j) + ", " + str(k))
+                cc[round(j)][round(k)] = n
 
     return xx, yy, cc
 
@@ -789,49 +795,60 @@ class JSONgraph():
 
 
 class openNanoQtgraph():
-	g = None
-	ax = None
-	def __init__(self, dictdata):
-		self.g = graph()
-		draw_legend = False;
-		self.ax = gca()
-		self.ax.set_title(dictdata["title"])
-		self.ax.set_xlabel(dictdata["x_label"])
-		self.ax.set_ylabel(dictdata["y_label"])
-		if dictdata["logscale_x"]:
-			self.ax.set_xscale("log")
-		else:
-			self.ax.set_xscale("linear")
-		if dictdata["logscale_y"]:
-			self.ax.set_yscale("log")
-		else:
-			self.ax.set_yscale("linear")
-		for n in range(len(dictdata["curves"])):
-			if dictdata["curves"][n] != None:
-				curvex, curvey = hsplit(array(dictdata["curves"][n]["data"]), 2)
-				plot(curvex, curvey)
-				curveline = self.ax.lines[-1]
-				if dictdata["curves"][n]["options"].has_key("label"):
-					curveline.set_label(dictdata["curves"][n]["options"]["label"])
-					draw_legend = True; 
-				curveline.set_linestyle(curve_line[dictdata["curves"][n]["options"]["pen_style"]])
-				curveline.set_linewidth(dictdata["curves"][n]["options"]["pen_width"])
-				if str(dictdata["curves"][n]["options"]["pen_color"]).startswith("0x"):
-					tmp_col = hex_x_to_normalized_tuple(str(dictdata["curves"][n]["options"]["pen_color"]))
-					curveline.set_color(tmp_col)# color_list[n%7])
-					curveline.set_markeredgecolor(tmp_col)# color_list[n%7])
-					curveline.set_markerfacecolor(tmp_col)# color_list[n%7])
-				else:
-					curveline.set_color(dictdata["curves"][n]["options"]["pen_color"])
-					curveline.set_markeredgecolor(dictdata["curves"][n]["options"]["pen_color"])
-					curveline.set_markerfacecolor(dictdata["curves"][n]["options"]["pen_color"])
+    g = None
+    ax = None
+    def __init__(self, dictdata):
+        self.g = graph()
+        draw_legend = False;
+        self.ax = gca()
+        
+        self.ax.set_title(dictdata["title"])
+        self.ax.set_xlabel(dictdata["x_label"])
+        self.ax.set_ylabel(dictdata["y_label"])
+        
+        if dictdata["logscale_x"]:
+            self.ax.set_xscale("log")
+        else:
+            self.ax.set_xscale("linear")
+        
+        if dictdata["logscale_y"]:
+            self.ax.set_yscale("log")
+        else:
+            self.ax.set_yscale("linear")
+        
+        if dictdata.has_key("curves"):
+            for n in range(len(dictdata["curves"])):
+                if dictdata["curves"][n] != None:
+                    curvex, curvey = hsplit(array(dictdata["curves"][n]["data"]), 2)
+                    plot(curvex, curvey)
+                    curveline = self.ax.lines[-1]
+                    if dictdata["curves"][n]["options"].has_key("label"):
+                        curveline.set_label(dictdata["curves"][n]["options"]["label"])
+                        draw_legend = True; 
+                    curveline.set_linestyle(curve_line[dictdata["curves"][n]["options"]["pen_style"]])
+                    curveline.set_linewidth(dictdata["curves"][n]["options"]["pen_width"])
+                    if str(dictdata["curves"][n]["options"]["pen_color"]).startswith("0x"):
+                        tmp_col = hex_x_to_normalized_tuple(str(dictdata["curves"][n]["options"]["pen_color"]))
+                        curveline.set_color(tmp_col)# color_list[n%7])
+                        curveline.set_markeredgecolor(tmp_col)# color_list[n%7])
+                        curveline.set_markerfacecolor(tmp_col)# color_list[n%7])
+                    else:
+                        curveline.set_color(dictdata["curves"][n]["options"]["pen_color"])
+                        curveline.set_markeredgecolor(dictdata["curves"][n]["options"]["pen_color"])
+                        curveline.set_markerfacecolor(dictdata["curves"][n]["options"]["pen_color"])
 
-				curveline.set_marker(curve_marker[dictdata["curves"][n]["options"]["symbol"]])
-				curveline.set_markersize(dictdata["curves"][n]["options"]["symbol_size"])
-		if draw_legend:
-			legend() 
+                    curveline.set_marker(curve_marker[dictdata["curves"][n]["options"]["symbol"]])
+                    curveline.set_markersize(dictdata["curves"][n]["options"]["symbol_size"])
+        
+        if dictdata.has_key("array"):
+            a = array(dictdata["array"]["data"]) 
+            x, y = meshgrid(linspace(dictdata["x_min"], dictdata["x_max"], len(a)), linspace(dictdata["y_min"], dictdata["y_max"], len(a[0])))
+            pcolormesh(x, y, a)
+        
+        if draw_legend:
+            legend() 
 
-		draw()
+        draw()
 
 
 

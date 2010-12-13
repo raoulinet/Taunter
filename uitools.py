@@ -83,6 +83,8 @@ class UiImport(eta.HasTraits):
     def __init__(self, fname = ""):
         if fname != "":
             self.fname = fname
+	else:
+	    self.fname = _ip.magic("pwd ")
 
     def _openNanoQtf_fired(self):
         self.data = sj.load(file(self.fname, "r"))

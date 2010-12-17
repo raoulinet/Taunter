@@ -70,8 +70,8 @@ def workspace():
 ###################################################################################
 
 
-def openPLOT(fname):
-    openNanoQtgraph(sj.load(file(fname, "r")))
+def openPLOT(fname, reversed = False, polar_projection = True, deg_rad = 1):
+    openNanoQtgraph(sj.load(file(fname, "r")), reversed=reversed, polar_projection=polar_projection, deg_rad=deg_rad)
 
 
 class UiImport(eta.HasTraits):

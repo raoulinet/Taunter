@@ -797,7 +797,7 @@ class JSONgraph():
 class openNanoQtgraph():
     g = None
     ax = None
-    def __init__(self, dictdata):
+    def __init__(self, dictdata, reversed = False, polar_projection = False, deg_rad = 1):
         self.g = graph()
         draw_legend = False;
         self.ax = gca()
@@ -843,7 +843,17 @@ class openNanoQtgraph():
         if dictdata.has_key("array"):
             a = array(dictdata["array"]["data"]) 
             x, y = meshgrid(linspace(dictdata["x_min"], dictdata["x_max"], len(a)), linspace(dictdata["y_min"], dictdata["y_max"], len(a[0])))
-            pcolormesh(x, y, a)
+            if polar_projection:
+                polar()
+                if reversed:
+                    pcolormesh(deg_rad*y, x, a.max() - a)
+                else:
+                    pcolormesh(deg_rad*y, x, a)
+            else:
+                if reversed:
+                    pcolormesh(x, y, a.max() - a)
+                else:
+                    pcolormesh(x, y, a)
         
         if draw_legend:
             legend() 

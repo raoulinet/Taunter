@@ -329,10 +329,10 @@ def set_marker(layer = None, marker = None, size = None, color = None):
 
 def line_matrix(bottom = None, top = None, xstep = 1, ystep = 1):
 
-    xmin = gca().get_xbound()[0]
-    xmax = gca().get_xbound()[1]
-    ymin = gca().get_ybound()[0]
-    ymax = gca().get_ybound()[1]
+    xmin = gca().lines[0].get_xdata().min()
+    xmax = gca().lines[0].get_xdata().max()
+    ymin = gca().lines[0].get_ydata().min()
+    ymax = gca().lines[0].get_ydata().max()
 
 
     xx, yy = meshgrid(arange(xmin, xmax, xstep), arange(ymin, ymax, ystep))
@@ -346,7 +346,7 @@ def line_matrix(bottom = None, top = None, xstep = 1, ystep = 1):
     intx = range((xmax - xmin)/xstep)
     inty = range((ymax - ymin)/ystep)
 
-    print("inty, intx: " + str(len(inty)) + ", " + str(len(intx)))
+    # print("inty, intx: " + str(len(inty)) + ", " + str(len(intx)))
 
     for n in range(len(gca().lines)):
         if bottom != None:
@@ -359,8 +359,11 @@ def line_matrix(bottom = None, top = None, xstep = 1, ystep = 1):
         for i in range(len(data)):
                 j = (data[i][1] - ymin)/ystep
                 k = (data[i][0] - xmin)/xstep
-                print("j, k: " + str(j) + ", " + str(k))
-                cc[round(j)][round(k)] = n
+                # print("j, k: " + str(j) + ", " + str(k))
+                try:
+                    cc[round(j)][round(k)] = n
+                except:
+                    print("oups, stopped @ " + str(i) + "/" + str(len(data)))
 
     return xx, yy, cc
 
@@ -797,7 +800,7 @@ class JSONgraph():
 class openNanoQtgraph():
     g = None
     ax = None
-    def __init__(self, dictdata, reversed = False, polar_projection = False, deg_rad = 1):
+    def __init__(self, dictdata, reversed = False):
         self.g = graph()
         draw_legend = False;
         self.ax = gca()
@@ -805,7 +808,7 @@ class openNanoQtgraph():
         self.ax.set_title(dictdata["title"])
         self.ax.set_xlabel(dictdata["x_label"])
         self.ax.set_ylabel(dictdata["y_label"])
-        
+    
         if dictdata["logscale_x"]:
             self.ax.set_xscale("log")
         else:
@@ -815,7 +818,7 @@ class openNanoQtgraph():
             self.ax.set_yscale("log")
         else:
             self.ax.set_yscale("linear")
-        
+    
         if dictdata.has_key("curves"):
             for n in range(len(dictdata["curves"])):
                 if dictdata["curves"][n] != None:
@@ -843,23 +846,32 @@ class openNanoQtgraph():
         if dictdata.has_key("array"):
             a = array(dictdata["array"]["data"]) 
             x, y = meshgrid(linspace(dictdata["x_min"], dictdata["x_max"], len(a)), linspace(dictdata["y_min"], dictdata["y_max"], len(a[0])))
-            if polar_projection:
-                polar()
-                if reversed:
-                    pcolormesh(deg_rad*y, x, a.max() - a)
-                else:
-                    pcolormesh(deg_rad*y, x, a)
+            if reversed:
+                pcolormesh(x, y, a.max() - a)
             else:
-                if reversed:
-                    pcolormesh(x, y, a.max() - a)
-                else:
-                    pcolormesh(x, y, a)
+                pcolormesh(x, y, a)
         
         if draw_legend:
             legend() 
 
         draw()
 
+
+class openNanoQtgraph_polar():
+    g = None
+    ax = None
+    def __init__(self, dictdata, reversed = False, deg_rad = 1):
+        figure()    
+        polar()
+        if dictdata.has_key("array"):
+            a = array(dictdata["array"]["data"]) 
+            x, y = meshgrid(linspace(dictdata["x_min"], dictdata["x_max"], len(a)), linspace(dictdata["y_min"], dictdata["y_max"], len(a[0])))
+            if reversed:
+                pcolormesh(deg_rad*y, x, a.max() - a)
+            else:
+                pcolormesh(deg_rad*y, x, a)
+
+        draw()
 
 
 class openTSVgraph():

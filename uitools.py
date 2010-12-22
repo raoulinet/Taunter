@@ -70,14 +70,25 @@ def workspace():
 ###################################################################################
 
 
-def openPLOT(fname, reversed = False, polar_projection = True, deg_rad = 1):
-    openNanoQtgraph(sj.load(file(fname, "r")), reversed=reversed, polar_projection=polar_projection, deg_rad=deg_rad)
+def openPLOT(fname, reversed=False, polar_projection=False, deg_rad=1):
+    try:
+        data_dict = sj.load(file(fname, "r"))
+    except:
+        printt("ouch!")
+
+    if polar_projection:
+        openNanoQtgraph_polar(data_dict, reversed=reversed, deg_rad=deg_rad)
+    else:
+        openNanoQtgraph(data_dict, reversed=reversed)
 
 
 class UiImport(eta.HasTraits):
-    data = eta.Dict
+    data = eta.Dict()
     fname = eta.File()
+    angle = eta.Str("2*pi")
+    reversed = eta.Bool()
     openNanoQtf = eta.Button("Open NanoQt file")
+    openNanoQtpolarf = eta.Button("Open NanoQt polar file")
     openTSVf = eta.Button("Open TSV file")
     
     def __init__(self, fname = ""):
@@ -87,9 +98,20 @@ class UiImport(eta.HasTraits):
 	    self.fname = _ip.magic("pwd ")
 
     def _openNanoQtf_fired(self):
-        self.data = sj.load(file(self.fname, "r"))
-        openNanoQtgraph(self.data)
+        openPLOT(self.fname, reversed = self.reversed)
+        # try:
+        #     self.data = sj.load(file(self.fname, "r"))
+        # except:
+        #     print("ouch")
+        # openNanoQtgraph(self.data)
 
+    def _openNanoQtpolarf_fired(self):
+        openPLOT(self.fname, reversed = self.reversed, polar_projection = True, deg_rad = eval(self.angle))
+        # try:
+        #     self.data = sj.load(file(self.fname, "r"))
+        # except:
+        #     print("ouch")
+        # openNanoQtgraph_polar(self.data, deg_rad=eval(self.angle))
 
     def _openTSVf_fired(self):
         openTSVgraph(self.fname)
@@ -98,7 +120,10 @@ class UiImport(eta.HasTraits):
     view = etua.View(
         etua.Item("data", style="simple"),
         etua.Item("fname", editor=etua.FileEditor(filter=['*.plot']), style="custom"),
+        etua.Item("angle"),
+        etua.Item("reversed"),
         etua.Item("openNanoQtf", show_label = False),
+        etua.Item("openNanoQtpolarf", show_label = False),
         etua.Item("openTSVf", show_label = False),
         resizable = True,
         scrollable = True,

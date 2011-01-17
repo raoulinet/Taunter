@@ -131,6 +131,84 @@ curve_marker = {
 #                                                                              #
 ################################################################################
 
+def cf():
+	"""
+	cf
+	"""
+
+	return gcf()
+
+
+
+def ca():
+	"""
+	ca
+	"""
+
+	return gca()
+
+
+
+def ci():
+	"""
+	ci
+	"""
+
+	return gci()
+
+
+
+def cl(line_number = -1):
+	"""
+	cl
+	"""
+
+	if len(gca().lines) > 0:
+		return gca().lines[line_number]
+	else:
+		return gca().lines
+
+
+
+def ct(text_number = -1):
+	"""
+	ct
+	"""
+
+	if len(gca().texts) > 0:
+		return gca().texts[text_number]
+	else:
+		return gca().texts
+
+
+
+def cx():
+	"""
+	cx
+	"""
+	
+	return ca().xaxis
+
+
+
+def cy():
+	"""
+	cy
+	"""
+	
+	return ca().yaxis
+
+
+
+def cT():
+	"""
+	cT
+	"""
+	
+	return ca().title
+
+
+
 def colorize(palette = "fancy", offset = 0):
 	"""
 	to colorize lines depdening of layers
@@ -160,12 +238,18 @@ def colorize(palette = "fancy", offset = 0):
 
 
 def get_data(layer = -1):
+	"""
+	get_data
+	"""
 
 	return gca().lines[layer].get_data()
 
 
 
 def rotate_data(theta = 0):
+	"""
+	rotate_data
+	"""
 
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
@@ -177,6 +261,9 @@ def rotate_data(theta = 0):
 
 
 def translate_data(displacement = 0):
+	"""
+	translate_data
+	"""
 
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
@@ -188,6 +275,9 @@ def translate_data(displacement = 0):
 
 
 def rotate_data_by_mouse():
+	"""
+	rotate_data_by_mouse
+	"""
 
 	_p = ginput(2, show_clicks=False)
 
@@ -207,6 +297,9 @@ def rotate_data_by_mouse():
 
 
 def translate_data_by_mouse(layer = None):
+	"""
+	translate_data_by_mouse	
+	"""
 
 	_p = ginput(2, show_clicks=False)
 
@@ -232,6 +325,9 @@ def translate_data_by_mouse(layer = None):
 
 
 def get_index_list():
+	"""
+	get_index_list
+	"""
 
 	n = 0
 
@@ -526,17 +622,20 @@ def openJSONgraph(bundle = None):
 	figure()
 
 	# First, set figure parameters
-
-	setp(gcf(), 'alpha'    , bundle['figure']['alpha']    , 
-	            'animated' , bundle['figure']['animated'] , 
-	            'edgecolor', bundle['figure']['edgecolor'], 
-	            'facecolor', bundle['figure']['facecolor'], 
-	            'figheight', bundle['figure']['figheight'], 
-	            'figwidth' , bundle['figure']['figwidth'] , 
-	            'frameon'  , bundle['figure']['frameon']  , 
-	            'label'    , bundle['figure']['label']    , 
-	            'visible'  , bundle['figure']['visible']  , 
-	            'zorder'   , bundle['figure']['zorder']   ) 
+	
+	try:
+		setp(gcf(), 'alpha'    , bundle['figure']['alpha']    , 
+			    'animated' , bundle['figure']['animated'] , 
+			    'edgecolor', bundle['figure']['edgecolor'], 
+			    'facecolor', bundle['figure']['facecolor'], 
+			    'figheight', bundle['figure']['figheight'], 
+			    'figwidth' , bundle['figure']['figwidth'] , 
+			    'frameon'  , bundle['figure']['frameon']  , 
+			    'label'    , bundle['figure']['label']    , 
+			    'visible'  , bundle['figure']['visible']  , 
+			    'zorder'   , bundle['figure']['zorder']   ) 
+	except:
+		print("Warning: fail to set figure properties")
 
 	# Now, set axes.
 	# Axes composed with properties with lines (data) and texts (lables).
@@ -544,69 +643,91 @@ def openJSONgraph(bundle = None):
 
 	for current_axis in bundle['axes']:
 
-
 		for current_line in current_axis['lines']:
-		
-			plot(current_line['xdata'], current_line['ydata'])	
-			setp(gca().lines[-1], 'alpha'          , current_line['alpha']          ,
-			                      'animated'       , current_line['animated']       ,
-			                      'antialiased'    , current_line['antialiased']    ,
-			                      'color'          , current_line['color']          ,
-			                      'dash_capstyle'  , current_line['dash_capstyle']  ,
-			                      'dash_joinstyle' , current_line['dash_joinstyle'] ,
-			                      'drawstyle'      , current_line['drawstyle']      ,
-			                      'label'          , current_line['label']          ,
-			                      'linestyle'      , current_line['linestyle']      ,
-			                      'linewidth'      , current_line['linewidth']      ,
-			                      'marker'         , current_line['marker']         ,
-			                      'markeredgecolor', current_line['markeredgecolor'],
-			                      'markeredgewidth', current_line['markeredgewidth'],
-			                      'markerfacecolor', current_line['markerfacecolor'],
-			                      'markersize'     , current_line['markersize']     ,
-			                      'solid_capstyle' , current_line['solid_capstyle'] ,
-			                      'solid_joinstyle', current_line['solid_joinstyle'],
-			                      'visible'        , current_line['visible']        ,
-			                      'zorder'         , current_line['zorder']         )
+			
+			try:
+				plot(current_line['xdata'], current_line['ydata'])	
+			except:
+				print("Warning: fail to plot data")
+
+			try:
+				setp(gca().lines[-1], 'alpha'          , current_line['alpha']          ,
+						      'animated'       , current_line['animated']       ,
+						      'antialiased'    , current_line['antialiased']    ,
+						      'color'          , current_line['color']          ,
+						      'dash_capstyle'  , current_line['dash_capstyle']  ,
+						      'dash_joinstyle' , current_line['dash_joinstyle'] ,
+						      'drawstyle'      , current_line['drawstyle']      ,
+						      'label'          , current_line['label']          ,
+						      'linestyle'      , current_line['linestyle']      ,
+						      'linewidth'      , current_line['linewidth']      ,
+						      'marker'         , current_line['marker']         ,
+						      'markeredgecolor', current_line['markeredgecolor'],
+						      'markeredgewidth', current_line['markeredgewidth'],
+						      'markerfacecolor', current_line['markerfacecolor'],
+						      'markersize'     , current_line['markersize']     ,
+						      'solid_capstyle' , current_line['solid_capstyle'] ,
+						      'solid_joinstyle', current_line['solid_joinstyle'],
+						      'visible'        , current_line['visible']        ,
+						      'zorder'         , current_line['zorder']         )
+			except:
+				print("Warning: fail to set line properties")
 
 		for current_text in current_axis['texts']:
-			
-			text(current_text['position'][0], current_text['position'][1], current_text['text'])
-			setp(gca().texts[-1], 'alpha'              , current_text['alpha']              , 
-			                      'animated'           , current_text['animated']           ,
-			                      'color'              , current_text['color']              ,
-			                      'family'             , current_text['family']             ,
-			                      'horizontalalignment', current_text['horizontalalignment'],
-			                      'label'              , current_text['label']              ,
-			                      'rotation'           , current_text['rotation']           ,
-			                      'size'               , current_text['size']               ,
-			                      'stretch'            , current_text['stretch']            ,
-			                      'style'              , current_text['style']              ,
-			                      'variant'            , current_text['variant']            ,
-			                      'verticalalignment'  , current_text['verticalalignment']  ,
-			                      'visible'            , current_text['visible']            ,
-			                      'weight'             , current_text['weight']             ,
-			                      'zorder'             , current_text['zorder']             )
+		
+			try:	
+				text(current_text['position'][0], current_text['position'][1], current_text['text'])
+			except:
+				print("Warning: fail to set text")
 
-		setp(gca(), 'adjustable'  , current_axis['adjustable']  ,
-		            'alpha'       , current_axis['alpha']       ,
-		            'anchor'      , current_axis['anchor']      ,
-		            'animated'    , current_axis['animated']    ,
-		            'aspect'      , current_axis['aspect']      ,
-		            'autoscale_on', current_axis['autoscale_on'],
-		            'axis_bgcolor', current_axis['axis_bgcolor'],
-		            'axisbelow'   , current_axis['axisbelow']   ,
-		            'frame_on'    , current_axis['frame_on']    ,
-		            'label'       , current_axis['label']       ,
-		            'position'    , current_axis['position']    ,
-		            'title'       , current_axis['title']       ,
-		            'visible'     , current_axis['visible']     ,
-		            'xbound'      , current_axis['xbound']      ,
-		            'xlabel'      , current_axis['xlabel']      ,
-		            'xscale'      , current_axis['xscale']      ,
-		            'ybound'      , current_axis['ybound']      ,
-		            'ylabel'      , current_axis['ylabel']      ,
-		            'yscale'      , current_axis['yscale']      ,
-		            'zorder'      , current_axis['zorder']      )
+			try:
+				setp(gca().texts[-1], 'alpha'              , current_text['alpha']              , 
+
+						      'animated'           , current_text['animated']           ,
+						      'color'              , current_text['color']              ,
+						      'family'             , current_text['family']             ,
+						      'horizontalalignment', current_text['horizontalalignment'],
+						      'label'              , current_text['label']              ,
+						      'rotation'           , current_text['rotation']           ,
+						      'size'               , current_text['size']               ,
+						      'stretch'            , current_text['stretch']            ,
+						      'style'              , current_text['style']              ,
+						      'variant'            , current_text['variant']            ,
+						      'verticalalignment'  , current_text['verticalalignment']  ,
+						      'visible'            , current_text['visible']            ,
+						      'weight'             , current_text['weight']             ,
+						      'zorder'             , current_text['zorder']             )
+			except:
+				print("Warning: fail to set text properties")
+
+		try:
+			setp(gca(), 'adjustable'  , current_axis['adjustable']  ,
+				    'alpha'       , current_axis['alpha']       ,
+				    'anchor'      , current_axis['anchor']      ,
+				    'animated'    , current_axis['animated']    ,
+				    'aspect'      , current_axis['aspect']      ,
+				    'autoscale_on', current_axis['autoscale_on'],
+				    'axis_bgcolor', current_axis['axis_bgcolor'],
+				    'axisbelow'   , current_axis['axisbelow']   ,
+				    'frame_on'    , current_axis['frame_on']    ,
+				    'label'       , current_axis['label']       ,
+				    'position'    , current_axis['position']    ,
+				    'title'       , current_axis['title']       ,
+				    'visible'     , current_axis['visible']     ,
+				    'xlabel'      , current_axis['xlabel']      ,
+				    'xscale'      , current_axis['xscale']      ,
+				    'ylabel'      , current_axis['ylabel']      ,
+				    'yscale'      , current_axis['yscale']      ,
+				    'zorder'      , current_axis['zorder']      )
+		except:
+			print("Warning: fail to set axes properties")
+
+		if type(current_axis['xbound']) == list and type(current_axis['ybound']) == list:
+			try:
+				setp(gca(), 'xbound'      , current_axis['xbound']      ,
+					    'ybound'      , current_axis['ybound']      )
+			except:
+				print("Warning: Get stuck with (x|y)bounds")
 
 
 
@@ -699,9 +820,21 @@ class UiImport(eta.HasTraits):
 
         try:
             self.data = sj.load(file(self.fname, "r"))
+        except:
+            print("Warning: fail to open the JSON graph")
+            return
+        
+        try:
+            self.data.has_key('axes')
+	except:
+            print("does not contains axes...")
+            return
+
+        try:
             openJSONgraph(self.data)
         except:
-            print("Warning: ouch @ openong and processing!")
+            print("Warning: fail to process the JSON graph")
+            return
 
 
     def _open_NanoQt_graph_fired(self):
@@ -712,8 +845,10 @@ class UiImport(eta.HasTraits):
                 openNanoQtgraph(self.data, reversed = self.reversed)
             except:
                 print("Warning: ouch @ processing!")
+                return
         except:
             print("Warning: ouch @ opening!")
+            return
 
 
     def _open_NanoQt_polar_fired(self):

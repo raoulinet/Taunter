@@ -1,16 +1,76 @@
 Taunter - README
 
 
-/--- Features ---/
+= Installation =
 
-TODO
+First of all, you need few libraries. I used to matplotlib and enthought because both are dealing with efficient features, simple interfaces and  more or less a good documentation.
 
-/--- Installation ---/
+== Linux ==
 
-*** Linux
+Just do:
 sudo aptitude install ipython python-matplotlib enthought-traits
 
-*** Windows, linux and mac
-Take a look at
+
+== Windows, Linux and MacOSX ==
+
+Take a look at:
 http://www.enthought.com/products/open-source-products.php
 http://www.pythonxy.com/
+
+
+== Unzipping and copying around ==
+
+It does not matter you download the zip or tar file, just uncompress it in a folder.
+I did it in the ~/Taunter file.
+Actually, Taunter is the name of my project.
+Google 'french taunter' to get more informationsi.
+Anyway, open a terminal and do:
+
+    $ mkdir ~/Taunter
+    $ mv ~/Downloads/raoulinet-Taunter-904d824.tar.gz ~/Taunter
+    $ tar -xzf raoulinet-Taunter-904d824.tar.gz
+
+So now there are two stuff to do.
+Import the usefull modules at the loading of ipython.
+To do so, just go in ~/.ipython folder and set the ipythonrc file.
+
+    $ cd ~/.ipython
+    $ vi ipythonrc
+
+Now you have entered in the marvellous world of Vim, so check for 'execfile' word by typing
+
+    :/execfile
+
+It should point on this:
+
+    execfile
+
+So you just have to add the path + name of the files you want to import at the laoding.
+Do it by typing i (only i) to go in insertion mode and type this:
+
+    execfile ~/Taunter/graphconf.py ~/Taunter/tools.py
+
+Ok now save and close.
+Come back in command mode by pressing ESC key on youre keybord.
+
+    :w
+    :q
+
+Now you are out of vim.
+I mean, I hope you're out of it.
+Then the last stuff to do.
+
+    $ mv ~/.matplotlib/matplotlibrc ~/.matplotlib/matplotlibrc_BAK 
+    $ cp ~/Taunter/matplotlibrc ~/.matplotlib/
+
+Restart python and check with 
+
+    plot(rand(10), rand(10))
+    xlabel("$x$label")
+    ylabel("ylabel")
+    title("Title")
+    setp(cx().label, 'color', 'r') # the most awesomest feature of matplotlib
+    get_index_list()
+
+If it works, great.
+If it doesn't, sorry.

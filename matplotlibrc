@@ -28,7 +28,7 @@
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'
- backend      : GTKAgg
+backend      : GTKAgg
 
 # if you are runing pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try and find a compatible one for
@@ -46,7 +46,7 @@
 ### LINES
 # See http://matplotlib.sourceforge.net/api/artist_api.html#module-matplotlib.lines for more
 # information on line properties.
- lines.linewidth   : 2.0     # line width in points
+lines.linewidth   : 2.0     # line width in points
 #lines.linestyle   : -       # solid line
 #lines.color       : blue
 #lines.marker      : None    # the default marker
@@ -54,7 +54,7 @@
 #lines.markersize  : 6            # markersize, in points
 #lines.dash_joinstyle : miter        # miter|round|bevel
 #lines.dash_capstyle : butt          # butt|round|projecting
- lines.solid_joinstyle : round       # miter|round|bevel
+lines.solid_joinstyle : round       # miter|round|bevel
 #lines.solid_capstyle : projecting   # butt|round|projecting
 #lines.antialiased : True         # render lines in antialised (no jaggies)
 
@@ -103,7 +103,7 @@
 # The font.size property is the default font size for text, given in pts.
 # 12pt is the standard value.
 #
- font.family         : serif # sans-serif 
+font.family         : serif # sans-serif 
 #font.style          : normal
 #font.variant        : normal
 #font.weight         : medium
@@ -113,8 +113,8 @@
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
- font.size           : 15.0 # 20.0
- font.serif          : Bitstream Vera Serif, Times New Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times, Palatino, Charter, serif
+font.size           : 15.0 # 20.0
+font.serif          : Bitstream Vera Serif, Times New Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times, Palatino, Charter, serif
 #font.sans-serif     : Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
 #font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, fantasy
@@ -190,17 +190,17 @@
 #axes.hold           : True    # whether to clear the axes by default on
 #axes.facecolor      : white   # axes background color
 #axes.edgecolor      : black   # axes edge color
- axes.linewidth      : 1.0     # edge linewidth
+axes.linewidth      : 1.0     # edge linewidth
 #axes.grid           : False   # display grid or not
- axes.titlesize      : large # fontsize of the axes title
- axes.labelsize      : xx-large # fontsize of the x any y labels
+axes.titlesize      : large # fontsize of the axes title
+axes.labelsize      : xx-large # fontsize of the x any y labels
 #axes.labelcolor     : black
 #axes.axisbelow      : False   # whether axis gridlines and ticks are below
                               # the axes elements (lines, text, etc)
- axes.formatter.limits : -0, 0 # use scientific notation if log10
+axes.formatter.limits : -3, 3 # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first -7 or larger than the second 7
-#axes.unicode_minus  : True    # use unicode for the minus symbol
+axes.unicode_minus  : False    # use unicode for the minus symbol
                                # rather than hypen.  See http://en.wikipedia.org/wiki/Plus_sign#Plus_sign
 # axes.color_cycle	:maroon, red, purple, fuchsia, green, lime, olive, yellow, navy, blue, teal, aqua
 #axes.color_cycle    : b, g, r, c, m, y, k  # color cycle for plot lines
@@ -208,39 +208,39 @@
                                             # single letter, long name, or
                                             # web-style hex
 
-#polaraxes.grid      : True    # display grid on polar axes
+polaraxes.grid      : False    # display grid on polar axes
 #axes3d.grid         : True    # display grid on 3d axes
 
 ### TICKS
 # see http://matplotlib.sourceforge.net/api/axis_api.html#matplotlib.axis.Tick
- xtick.major.size     : 4      # major tick size in points
- xtick.minor.size     : 2      # minor tick size in points
- xtick.major.pad      : 7      # distance to major tick label in points
- xtick.minor.pad      : 7      # distance to the minor tick label in points
-#xtick.color          : k      # color of the tick labels
- xtick.labelsize      : large # fontsize of the tick labels
- xtick.direction      : in     # direction: in or out
+xtick.major.size     : 4      # major tick size in points
+xtick.minor.size     : 2      # minor tick size in points
+xtick.major.pad      : 7      # distance to major tick label in points
+xtick.minor.pad      : 7      # distance to the minor tick label in points
+xtick.color          : k      # color of the tick labels
+xtick.labelsize      : large  # fontsize of the tick labels
+xtick.direction      : in     # direction: in or out
 
- ytick.major.size     : 4      # major tick size in points
- ytick.minor.size     : 2      # minor tick size in points
- ytick.major.pad      : 7      # distance to major tick label in points
- ytick.minor.pad      : 7      # distance to the minor tick label in points
-#ytick.color          : k      # color of the tick labels
- ytick.labelsize      : large # fontsize of the tick labels
- ytick.direction      : in     # direction: in or out
+ytick.major.size     : 4      # major tick size in points
+ytick.minor.size     : 2      # minor tick size in points
+ytick.major.pad      : 7      # distance to major tick label in points
+ytick.minor.pad      : 7      # distance to the minor tick label in points
+ytick.color          : k      # color of the tick labels
+ytick.labelsize      : large  # fontsize of the tick labels
+ytick.direction      : in     # direction: in or out
 
 
 ### GRIDS
 #grid.color       :   black   # grid color
 #grid.linestyle   :   :       # dotted
- grid.linewidth   :   1.2     # in points
+grid.linewidth   :   1.2     # in points
 
 ### Legend
- legend.fancybox      : True  # if True, use a rounded box for the
+legend.fancybox      : True  # if True, use a rounded box for the
                                # legend, else a rectangle
 #legend.isaxes        : True
-#legend.numpoints     : 2      # the number of points in the legend line
- legend.fontsize      : large
+legend.numpoints     : 1      # the number of points in the legend line
+legend.fontsize      : large
 #legend.pad           : 0.0    # deprecated; the fractional whitespace inside the legend border
 #legend.borderpad     : 0.5    # border whitspace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
@@ -260,19 +260,19 @@ figure.edgecolor : white   # figure edgecolor
 
 # The figure subplot parameters.  All dimensions are fraction of the
 # figure width or height
- figure.subplot.left    : 0.155  # the left side of the subplots of the figure
- figure.subplot.right   : 0.95    # the right side of the subplots of the figure
- figure.subplot.bottom  : 0.137    # the bottom of the subplots of the figure
- figure.subplot.top     : 0.9    # the top of the subplots of the figure
+figure.subplot.left    : 0.18  # the left side of the subplots of the figure
+figure.subplot.right   : 0.9    # the right side of the subplots of the figure
+figure.subplot.bottom  : 0.15    # the bottom of the subplots of the figure
+figure.subplot.top     : 0.9    # the top of the subplots of the figure
 #figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number
- image.interpolation  : nearest  # see help(imshow) for options
- image.cmap   : spectral               # gray | jet etc...
+image.interpolation  : nearest  # see help(imshow) for options
+image.cmap   : spectral               # gray | jet etc...
 #image.lut    : 256               # the size of the colormap lookup table
- image.origin : lower             # lower | upper
+image.origin : lower             # lower | upper
 #image.resample  : False
 
 ### CONTOUR PLOTS
@@ -307,7 +307,7 @@ figure.edgecolor : white   # figure edgecolor
 #savefig.edgecolor : white    # figure edgecolor when saving
 #savefig.extension : 'auto'     # what extension to use for savefig('foo'), or 'auto'
 
- cairo.format      : pdf      # png, ps, pdf, svg
+cairo.format      : pdf      # png, ps, pdf, svg
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
@@ -360,15 +360,15 @@ figure.edgecolor : white   # figure edgecolor
 # Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '')
 
 #keymap.fullscreen : f               # toggling
-#keymap.home : h, r, home            # home or reset mnemonic
-#keymap.back : left, c, backspace    # forward / backward keys to enable
-#keymap.forward : right, v           #   left handed quick navigation
+#keymap.home : h                     # home or reset mnemonic
+#keymap.back : c                     # forward / backward keys to enable
+#keymap.forward : v                  #   left handed quick navigation
 #keymap.pan : p                      # pan mnemonic
 #keymap.zoom : o                     # zoom mnemonic
 #keymap.save : s                     # saving current figure
 #keymap.grid : g                     # switching on/off a grid in current axes
 #keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
-#keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
+#keymap.xscale : k                   # toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 # enable all axes
 
 # Control downloading of example data. Various examples download some

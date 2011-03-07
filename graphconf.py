@@ -140,12 +140,21 @@ def cf():
 
 
 
-def ca():
+def cAs():
 	"""
 	ca
 	"""
 
-	return gca()
+	return getp(cf(), 'axes')
+
+
+
+def cA(num = -1):
+	"""
+	cA
+	"""
+
+	return getp(cf(), 'axes')[num]
 
 
 
@@ -163,10 +172,29 @@ def cl(line_number = -1):
 	cl
 	"""
 
-	if len(gca().lines) > 0:
-		return gca().lines[line_number]
-	else:
-		return gca().lines
+	return gca().lines[line_number]
+
+
+
+def cls(lower = 0, higher = None):
+	"""
+	cls
+	"""
+
+	if higher == None:
+		higher = len(gca().lines)
+
+	n = 0
+
+	for i in gca().lines:
+		print("# " + str(n)
+		+ "\tmarker: " + str(i.get_marker())
+		+ "\tline: " + str(i.get_linestyle())
+		+ "\tcolor: " + str(i.get_color())
+		+ "\tlen: " + str(len(i.get_xdata())))
+		n += 1
+
+	return gca().lines[lower : higher]
 
 
 
@@ -175,10 +203,16 @@ def ct(text_number = -1):
 	ct
 	"""
 
-	if len(gca().texts) > 0:
-		return gca().texts[text_number]
-	else:
-		return gca().texts
+	return gca().texts[text_number]
+
+
+
+def ct(text_number = -1):
+	"""
+	ct
+	"""
+
+	return gca().texts
 
 
 
@@ -209,26 +243,66 @@ def cT():
 
 
 
-def colorize(palette = "fancy", offset = 0):
+def cPs():
+	"""
+	"""
+
+	return filter(lambda i: type(i) == Polygon, getp(ca(), 'children'))
+
+
+
+def cP(num = -1):
+	"""
+	"""
+
+	return filter(lambda i: type(i) == Polygon, getp(ca(), 'children'))[num]
+
+
+
+def cEs():
+	"""
+	"""
+
+	return filter(lambda i: type(i) == Ellipse, getp(ca(), 'children'))
+
+
+
+def cE(num = -1):
+	"""
+	"""
+
+	return filter(lambda i: type(i) == Ellipse, getp(ca(), 'children'))[num]
+
+
+
+def colorize(palette = "fancy", offset = 0, period = None):
 	"""
 	to colorize lines depdening of layers
 	"""
 
-	if palette == "fancy":
-		colors = fancy_colors
-	else:
-		if palette == "web":
-			colors = web_colors
+	if type(palette) == str:
+		if palette == "fancy":
+			colors = fancy_colors
 		else:
-			if palette == "brown":
-				colors = brown_colors
+			if palette == "web":
+				colors = web_colors
 			else:
-				colors = default_colors
+				if palette == "brown":
+					colors = brown_colors
+				else:
+					colors = default_colors
+	elif type(palette) == list:
+		colors = palette
+	else:
+		colors = default_colors
+
+	if period == None:
+		period = len(colors)
 
 	n = len(gca().lines)
 
 	for i in range(n):
-		tmp_col = colors[(i + offset)%len(colors)]
+		tmp_col = colors[i%period + offset%(len(colors) - 1)]
 		gca().lines[i].set_color(tmp_col)
 		gca().lines[i].set_markerfacecolor(tmp_col)
 		gca().lines[i].set_markeredgecolor(tmp_col)
@@ -338,15 +412,15 @@ def get_index_list():
 
 
 
-def slice_graph(begin = 0, end = None, step = 1):
+def slice_graph(begin = 0, num = None, step = 1):
 
 	source = gcf()
 	drop = figure()
 
-	if end == None:
-		end = len(source.axes[-1].lines)
+	if num == None:
+		num = len(gca().lines)
 
-	for i in range(begin, end, step):
+	for i in range(begin, num, step):
 		x, y = source.axes[-1].lines[i].get_data()
 		marker = source.axes[-1].lines[i].get_marker()
 		markersize = source.axes[-1].lines[i].get_markersize()
@@ -389,9 +463,19 @@ def get_norm_angle():
 
 
 
-def remove_line(layer = -1):
+def remove_first(layer = 0):
 
 	gca().lines.pop(layer)
+	draw()
+
+
+
+def remove_last(layer = None):
+
+	if layer == None:
+		gca().lines.pop()
+	else:
+		gca().lines.pop(layer)
 	draw()
 
 
@@ -414,6 +498,15 @@ def line_matrix(bottom = None, top = None, xstep = 1, ystep = 1):
     intx = range((xmax - xmin)/xstep)
     inty = range((ymax - ymin)/ystep)
 
+    for j in intx:
+	for k in inty:
+		cc[k][j] = 0
+
+    if len(gca().lines) == 1:
+        offset = 1
+    else:
+        offset = 0
+
     for n in range(len(gca().lines)):
         if bottom != None:
             if n < bottom:
@@ -427,7 +520,7 @@ def line_matrix(bottom = None, top = None, xstep = 1, ystep = 1):
                 k = (data[i][0] - xmin)/xstep
                 # print("j, k: " + str(j) + ", " + str(k))
                 try:
-                    cc[round(j)][round(k)] = n
+                    cc[round(j)][round(k)] = n + offset
                 except:
                     print("oups, stopped @ " + str(i) + "/" + str(len(data)))
 

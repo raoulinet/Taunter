@@ -606,8 +606,8 @@ def saveJSONgraph(file_name = None):
 	bundle['figure']['animated']    = getp(gcf(), 'animated')
 	bundle['figure']['edgecolor']   = getp(gcf(), 'edgecolor')
 	bundle['figure']['facecolor']   = getp(gcf(), 'facecolor')
-	bundle['figure']['figheight']   = getp(gcf(), 'figheight')
-	bundle['figure']['figwidth']    = getp(gcf(), 'figwidth')
+	# bundle['figure']['figheight']   = getp(gcf(), 'figheight')
+	# bundle['figure']['figwidth']    = getp(gcf(), 'figwidth')
 	bundle['figure']['frameon']     = getp(gcf(), 'frameon')
 	bundle['figure']['label']       = getp(gcf(), 'label')
 	bundle['figure']['visible']     = getp(gcf(), 'visible')
@@ -721,8 +721,8 @@ def openJSONgraph(bundle = None):
 			    'animated' , bundle['figure']['animated'] , 
 			    'edgecolor', bundle['figure']['edgecolor'], 
 			    'facecolor', bundle['figure']['facecolor'], 
-			    'figheight', bundle['figure']['figheight'], 
-			    'figwidth' , bundle['figure']['figwidth'] , 
+			    # 'figheight', bundle['figure']['figheight'], 
+			    # 'figwidth' , bundle['figure']['figwidth'] , 
 			    'frameon'  , bundle['figure']['frameon']  , 
 			    'label'    , bundle['figure']['label']    , 
 			    'visible'  , bundle['figure']['visible']  , 
@@ -900,51 +900,54 @@ class UiImport(eta.HasTraits):
     fname = eta.File()
     angle = eta.Str("2*pi")
     reversed = eta.Bool()
-    open_JSON_graph = eta.Button("Open JSON graph")
-    open_NanoQt_graph = eta.Button("Open NanoQt graph")
-    open_NanoQt_polar = eta.Button("Open NanoQt polar")
+    open_graph = eta.Button("Open graph")
+    # open_NanoQt_graph = eta.Button("Open NanoQt graph")
+    open_polar = eta.Button("Open polar")
    
  
     def __init__(self, fname = ""):
         self.fname = _ip.magic("pwd ")
 
 
-    def _open_JSON_graph_fired(self):
+    def _open_graph_fired(self):
 
-        try:
-            self.data = sj.load(file(self.fname, "r"))
-        except:
-            print("Warning: fail to open the JSON graph")
-            return
-        
-        try:
-            self.data.has_key('axes')
-	except:
-            print("does not contains axes...")
-            return
+	if self.fname[-7:-1] == ".pyplo":
+	
+		try:
+		    self.data = sj.load(file(self.fname, "r"))
+		except:
+		    print("Warning: fail to open the JSON graph")
+		    return
+		
+		try:
+		    self.data.has_key('axes')
+		except:
+		    print("does not contains axes...")
+		    return
 
-        try:
-            openJSONgraph(self.data)
-        except:
-            print("Warning: fail to process the JSON graph")
-            return
+		try:
+		    openJSONgraph(self.data)
+		except:
+		    print("Warning: fail to process the JSON graph")
+		    return
+	elif self.fname[-5:-1] == ".plo":
+
+		try:
+		    self.data = sj.load(file(self.fname, "r"))
+		    try:
+			openNanoQtgraph(self.data, reversed = self.reversed)
+		    except:
+			print("Warning: ouch @ processing!")
+			return
+		except:
+		    print("Warning: ouch @ opening!")
+		    return
+	else:
+		print("type not known")
+		return
 
 
-    def _open_NanoQt_graph_fired(self):
-
-        try:
-            self.data = sj.load(file(self.fname, "r"))
-            try:
-                openNanoQtgraph(self.data, reversed = self.reversed)
-            except:
-                print("Warning: ouch @ processing!")
-                return
-        except:
-            print("Warning: ouch @ opening!")
-            return
-
-
-    def _open_NanoQt_polar_fired(self):
+    def _open_polar_fired(self):
 
         try:
             self.data = sj.load(file(self.fname, "r"))
@@ -955,25 +958,23 @@ class UiImport(eta.HasTraits):
         except:
             print("Warning: ouch @ opening!")
 
-    open_json_graph = etum.Action(name = 'open JSON graph',
-			          action = '_open_JSON_graph_fired')
+    open_graph = etum.Action(name = 'open graph', action = '_open_graph_fired')
 
-    open_nanoqt_graph = etum.Action(name = 'open NanoQt graph',
-			            action = '_open_NanoQt_graph_fired')
+    # open_nanoqt_graph = etum.Action(name = 'open NanoQt graph', action = '_open_NanoQt_graph_fired')
 
-    open_nanoqt_polar = etum.Action(name = 'open NanoQt polar',
-			            action = '_open_NanoQt_polar_fired')
+    open_polar = etum.Action(name = 'open polar', action = '_open_polar_fired')
 
 
     view = etua.View(
         # etua.Item("data", style="simple"),
         etua.Item('angle'),
         etua.Item('reversed'),
-        etua.Item('fname', editor=etua.FileEditor(filter = ['*.plot'], auto_set = True), style = "custom"),
+        # etua.Item('fname', editor=etua.FileEditor(filter = ['*.plot'], auto_set = True), style = "custom"),
+        etua.Item('fname', editor=etua.FileEditor(auto_set = True), style = "custom"),
         resizable = True,
         scrollable = True,
 	title= "UiImport",
-	toolbar = etum.ToolBar(open_json_graph, open_nanoqt_graph, open_nanoqt_polar),
+	toolbar = etum.ToolBar(open_graph, open_polar),
         height = 640,
         width = 800
     )

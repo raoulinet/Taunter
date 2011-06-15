@@ -5,6 +5,7 @@ import enthought.traits.ui.wx.tree_editor as etuwt
 import enthought.pyface.api as epa
 import simplejson as sj
 import os
+import math
 
 
 ################################################################################
@@ -221,7 +222,7 @@ def cx():
 	cx
 	"""
 	
-	return ca().xaxis
+	return cA().xaxis
 
 
 
@@ -230,7 +231,7 @@ def cy():
 	cy
 	"""
 	
-	return ca().yaxis
+	return cA().yaxis
 
 
 
@@ -303,9 +304,7 @@ def colorize(palette = "fancy", offset = 0, period = None):
 
 	for i in range(n):
 		tmp_col = colors[i%period + offset%(len(colors) - 1)]
-		gca().lines[i].set_color(tmp_col)
-		gca().lines[i].set_markerfacecolor(tmp_col)
-		gca().lines[i].set_markeredgecolor(tmp_col)
+		setp(cl(i), 'color', tmp_col, 'mfc', tmp_col, 'mec', tmp_col)
 
 	draw()
 
@@ -412,28 +411,40 @@ def get_index_list():
 
 
 
-def slice_graph(begin = 0, num = None, step = 1):
+def slice_graph(num = None):
 
 	source = gcf()
-	drop = figure()
 
-	if num == None:
-		num = len(gca().lines)
+	x, y = source.axes[-1].lines[num].get_data()
+	marker = source.axes[-1].lines[num].get_marker()
+	markersize = source.axes[-1].lines[num].get_markersize()
+	linestyle = source.axes[-1].lines[num].get_linestyle()
+	linewidth = source.axes[-1].lines[num].get_linewidth()
+	color = source.axes[-1].lines[num].get_color()
+	label = source.axes[-1].lines[num].get_label()
+	figure()
+	plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)
 
-	for i in range(begin, num, step):
-		x, y = source.axes[-1].lines[i].get_data()
-		marker = source.axes[-1].lines[i].get_marker()
-		markersize = source.axes[-1].lines[i].get_markersize()
-		linestyle = source.axes[-1].lines[i].get_linestyle()
-		linewidth = source.axes[-1].lines[i].get_linewidth()
-		color = source.axes[-1].lines[i].get_color()
-		label = source.axes[-1].lines[i].get_label()
-		figure(drop.number)
+
+
+def explode_graph(num = None):
+
+	source = gcf()
+
+	for num in range(len(source.axes[-1].lines)):
+		x, y = source.axes[-1].lines[num].get_data()
+		marker = source.axes[-1].lines[num].get_marker()
+		markersize = source.axes[-1].lines[num].get_markersize()
+		linestyle = source.axes[-1].lines[num].get_linestyle()
+		linewidth = source.axes[-1].lines[num].get_linewidth()
+		color = source.axes[-1].lines[num].get_color()
+		label = source.axes[-1].lines[num].get_label()
+		figure()
 		plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)
 
 
 
-def copy_paste_graph(source_fig, drop_fig):
+def copy_paste_graph(source_fig, drop_fig, xoffset = 0, xmul = 1, yoffset = 0, ymul = 1):
 
 	source = figure(source_fig)
 	drop = figure(drop_fig)
@@ -447,7 +458,7 @@ def copy_paste_graph(source_fig, drop_fig):
 		color = source.axes[-1].lines[i].get_color()
 		label = source.axes[-1].lines[i].get_label()
 		figure(drop.number)
-		plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)
+		plot(xmul*array(x) + xoffset, ymul*array(y) + yoffset, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)
 
 
 
@@ -569,12 +580,12 @@ class pgraph:
 	Overlaod of figure() + pcolor() function
 	a 2 in 1
 	colorgraph(...) to open and plot
-	pcolor(...) to append a line in the graph
+	pcolormesh(...) to append a line in the graph
 	"""
 
-	def __init__(self, *args):
+	def __init__(self, *args, **kwargs):
 		figure()
-		pcolormesh(*args)
+		pcolormesh(*args, **kwargs)
 
 
 
@@ -891,6 +902,59 @@ def openNanoQtgraph_polar(bundle, reversed = False, deg_rad = 1):
             pcolormesh(deg_rad*y, x, a)
 
     draw()
+
+
+
+def openGraph(fname, reversed = False):
+
+	if fname[-7:-1] == ".pyplo":
+	
+		try:
+			data = sj.load(file(fname, "r"))
+		except:
+			print("Warning: fail to open the JSON graph")
+			return
+		
+		try:
+			data.has_key('axes')
+		except:
+			print("does not contains axes...")
+			return
+
+		try:
+			openJSONgraph(data)
+		except:
+			print("Warning: fail to process the JSON graph")
+			return
+
+	elif fname[-5:-1] == ".plo":
+
+		try:
+			data = sj.load(file(fname, "r"))
+			try:
+				openNanoQtgraph(data, reversed = reversed)
+			except:
+				print("Warning: ouch @ processing!")
+				return
+		except:
+			print("Warning: ouch @ opening!")
+			return
+	else:
+		print("type not known")
+		return
+
+
+
+def openPolar(fname, reversed = False, angle = 2 * math.pi):
+
+	try:
+		data = sj.load(file(fname, "r"))
+		try:
+			openNanoQtgraph_polar(data, reversed = reversed, deg_rad = eval(angle))
+		except:
+			print("Warning: ouch @ processing!")
+	except:
+		print("Warning: ouch @ opening!")
 
 
 

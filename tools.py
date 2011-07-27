@@ -60,11 +60,17 @@ def build_waveform(waveform_description, awg_samplingrate = 24):
 
 
 def E(m, k, h):
-    return h[0]*m[0] + h[1]*m[1] + h[2]*m[2] - k[0] * m[0]**2 - k[1] * m[1]**2 - k[2] * m[2]**2  - k[3] * (m[0]**2 * m[1]**2 + m[1]**2 * m[2]**2 + m[2]**2 * m[0]**2)
+    return - h[0]*m[0] + - h[1]*m[1] + - h[2]*m[2] - k[0] * m[0]**2 - k[1] * m[1]**2 - k[2] * m[2]**2  - k[3] * (m[0]**2 * m[1]**2 + m[1]**2 * m[2]**2 + m[2]**2 * m[0]**2)
 
 
-def Gilbert(alpha, m, h):
-	return -alpha/(1 + alpha**2) * np.cross(m, np.cross(m, h))
+
+def LL(m, h):
+	return - cross(m, h)
+
+
+def G(m, h, a):
+	return -a * cross(m, cross(m, h))
+
 
 
 def powow(x, n):

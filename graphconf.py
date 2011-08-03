@@ -185,6 +185,15 @@ def cls(lower = 0, higher = None):
 	if higher == None:
 		higher = len(gca().lines)
 
+	return gca().lines[lower : higher]
+
+
+
+def get_info():
+	"""
+	get_info
+	"""
+
 	n = 0
 
 	for i in gca().lines:
@@ -194,8 +203,6 @@ def cls(lower = 0, higher = None):
 		+ "\tcolor: " + str(i.get_color())
 		+ "\tlen: " + str(len(i.get_xdata())))
 		n += 1
-
-	return gca().lines[lower : higher]
 
 
 
@@ -491,7 +498,7 @@ def remove_last(layer = None):
 
 
 
-def line_matrix(bottom = None, top = None, xstep = 1, ystep = 1):
+def line_matrix(xstep = 1, ystep = 1, bottom = None, top = None):
 
     xmin = gca().lines[0].get_xdata().min()
     xmax = gca().lines[0].get_xdata().max()
@@ -585,6 +592,19 @@ class pgraph:
 
 	def __init__(self, *args, **kwargs):
 		figure()
+		pcolormesh(*args, **kwargs)
+
+class polargraph:
+	"""
+	Overlaod of figure() + pcolor() function
+	a 2 in 1
+	colorgraph(...) to open and plot
+	pcolormesh(...) to append a line in the graph
+	"""
+
+	def __init__(self, *args, **kwargs):
+		figure()
+		polar()
 		pcolormesh(*args, **kwargs)
 
 
@@ -843,21 +863,28 @@ def openNanoQtgraph(bundle, reversed = False):
 
 	if bundle.has_key("curves"):
 
-		print("Load the curves")
-
 		for n in range(len(bundle["curves"])):
 			
-			print("Seek data in the curve layer #" + str(n))
-
 			if bundle["curves"][n] != None:
 				
 				curvex, curvey = hsplit(array(bundle["curves"][n]["data"]), 2)
 				plot(curvex, curvey)
 				print("Plotted the curve #" + str(n))
 
-		setp(cls(), 'ls', "")
-		setp(cls(), 'lw', 1)
-		setp(cls(), 'marker', 's')
+				print("pen_style " + curve_line[bundle["curves"][n]["options"]["pen_style"]])
+				if curve_line[bundle["curves"][n]["options"]["pen_style"]] == "Solid":
+					setp(cl(), 'ls', '-')
+				else:
+					setp(cl(), 'ls', '')
+
+				if curve_line[bundle["curves"][n]["options"]["pen_style"]] == "-":
+					setp(cl(), 'ls', '-')
+				else:
+					setp(cl(), 'ls', '')
+
+				setp(cl(), 'lw', 1)
+				setp(cl(), 'marker', 's')
+				setp(cl(), 'ms', 3)
 		colorize()
 	else:
 		print("No data to process")
@@ -1006,11 +1033,14 @@ class UiImport(eta.HasTraits):
     open_graph = eta.Button("Open graph")
     # open_NanoQt_graph = eta.Button("Open NanoQt graph")
     open_polar = eta.Button("Open polar")
+    reload = eta.Button("Reload")
    
  
     def __init__(self, fname = ""):
         self.fname = _ip.magic("pwd ")
 
+    def _reload_fired(self):
+        self.fname = _ip.magic("pwd ")
 
     def _open_graph_fired(self):
 
@@ -1063,6 +1093,7 @@ class UiImport(eta.HasTraits):
     # open_nanoqt_graph = etum.Action(name = 'open NanoQt graph', action = '_open_NanoQt_graph_fired')
 
     open_polar = etum.Action(name = 'open polar', action = '_open_polar_fired')
+    reload = etum.Action(name = 'reload', action = '_reload_fired')
 
 
     view = etua.View(
@@ -1074,7 +1105,7 @@ class UiImport(eta.HasTraits):
         resizable = True,
         scrollable = True,
 	title= "UiImport",
-	toolbar = etum.ToolBar(open_graph, open_polar),
+	toolbar = etum.ToolBar(open_graph, open_polar, reload),
         height = 640,
         width = 800
     )
@@ -1085,3 +1116,42 @@ def uiimport(fname = ""):
 
     wxuiimport = UiImport(fname)
     wxuiimport.configure_traits()
+
+
+
+class UiBrowser(eta.HasTraits):
+
+    directory = eta.Directory()
+    current_directory = eta.Str("")
+    cd = eta.Button("Directory")
+   
+ 
+    def __init__(self):
+        self.directory = _ip.magic("pwd ")
+        self.current_directory = self.directory
+
+
+    def _cd_fired(self):
+
+	_ip.magic("cd " + self.directory)
+        self.current_directory = _ip.magic("pwd ")
+
+    change_directory = etum.Action(name = 'Directory', action = '_cd_fired')
+
+    view = etua.View(
+        etua.Item('current_directory'),
+        etua.Item('directory', editor=etua.DirectoryEditor(), style = "custom"),
+        resizable = True,
+        scrollable = True,
+	title= "Browser",
+	toolbar = etum.ToolBar(change_directory),
+        height = 640,
+        width = 800
+    )
+
+
+
+def browser():
+
+    wxbrowser = UiBrowser()
+    wxbrowser.configure_traits()

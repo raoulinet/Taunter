@@ -837,46 +837,81 @@ def openJSONgraph(bundle = None):
 
 def openNanoQtgraph(bundle, reversed = False):
 
+	figure()    
+	# setp(cA(), 'xlabel', bundle['x_label'])
+	# setp(cA(), 'ylabel', bundle['y_label'])
+
+	if bundle.has_key("curves"):
+
+		print("Load the curves")
+
+		for n in range(len(bundle["curves"])):
+			
+			print("Seek data in the curve layer #" + str(n))
+
+			if bundle["curves"][n] != None:
+				
+				curvex, curvey = hsplit(array(bundle["curves"][n]["data"]), 2)
+				plot(curvex, curvey)
+				print("Plotted the curve #" + str(n))
+
+		setp(cls(), 'ls', "")
+		setp(cls(), 'lw', 1)
+		setp(cls(), 'marker', 's')
+		colorize()
+	else:
+		print("No data to process")
+
+
+
+def vestige_openNanoQtgraph(bundle, reversed = False):
+
     figure()    
-    setp(gca(), 'title', bundle['title'])
-    setp(gca(), 'xlabel', bundle['x_label'])
-    setp(gca(), 'ylabel', bundle['y_label'])
+    # setp(cA(), 'title', bundle['title']) 
+    # setp(cA(), 'xlabel', bundle['x_label'])
+    # setp(cA(), 'ylabel', bundle['y_label'])
     
-    if bundle['logscale_x']:
-        setp(gca(), 'xscale', 'log')
-    else:
-        setp(gca(), 'xscale', 'linear')
+    # if bundle['logscale_x']:
+    #    setp(cA(), 'xscale', 'log')
+    # else:
+    #    setp(cA(), 'xscale', 'linear')
     
-    if bundle['logscale_y']:
-        setp(gca(), 'yscale', 'log')
-    else:
-        setp(gca(), 'yscale', 'linear')
+    # if bundle['logscale_y']:
+    #    setp(cA(), 'yscale', 'log')
+    # else:
+    #    setp(cA(), 'yscale', 'linear')
     
     if bundle.has_key("curves"):
 
+	print("Load the curves")
+
         for n in range(len(bundle["curves"])):
+
+	    print("Seek data in the curve layer #" + str(n))
 
             if bundle["curves"][n] != None:
 
                 curvex, curvey = hsplit(array(bundle["curves"][n]["data"]), 2)
                 plot(curvex, curvey)
+		print("Plotted the curve #" + str(n))
 
-                setp(gca().lines[-1], 'ls', curve_line[bundle["curves"][n]["options"]["pen_style"]])
-                setp(gca().lines[-1], 'lw', bundle["curves"][n]["options"]["pen_width"])
+		# setp(cl(), 'ls', curve_line[bundle["curves"][n]["options"]["pen_style"]])
 
-                if str(bundle["curves"][n]["options"]["pen_color"]).startswith("0x"):
-                    formatted_color = '#' + str(bundle["curves"][n]["options"]["pen_color"])[2:]
-                else:
-                    formatted_color = str(bundle["curves"][n]["options"]["pen_color"])
+                # if str(bundle["curves"][n]["options"]["pen_color"]).startswith("0x"):
+                #     formatted_color = '#' + str(bundle["curves"][n]["options"]["pen_color"])[2:]
+                # else:
+                #    formatted_color = str(bundle["curves"][n]["options"]["pen_color"])
 
-		setp(gca().lines[-1], 'c', formatted_color)
-                setp(gca().lines[-1], 'mec', formatted_color)
-                setp(gca().lines[-1], 'mfc', formatted_color)
+		# setp(gca().lines[-1], 'c', formatted_color)
+                # setp(gca().lines[-1], 'mec', formatted_color)
+                # setp(gca().lines[-1], 'mfc', formatted_color)
     
-                setp(gca().lines[-1], 'marker', curve_marker[bundle["curves"][n]["options"]["symbol"]])
-                setp(gca().lines[-1], 'markersize', bundle["curves"][n]["options"]["symbol_size"])
+                # setp(gca().lines[-1], 'marker', curve_marker[bundle["curves"][n]["options"]["symbol"]])
+                # setp(gca().lines[-1], 'markersize', bundle["curves"][n]["options"]["symbol_size"])
     
     if bundle.has_key("array"):
+
+    	print("Load array")
 
         a = array(bundle["array"]["data"]) 
         x, y = meshgrid(linspace(bundle["x_min"], bundle["x_max"], len(a)), linspace(bundle["y_min"], bundle["y_max"], len(a[0])))
@@ -884,6 +919,10 @@ def openNanoQtgraph(bundle, reversed = False):
             pcolormesh(x, y, a.max() - a)
         else:
             pcolormesh(x, y, a)
+
+    setp(cl(), 'ls', "")
+    setp(cl(), 'lw', 1)
+    colorize()
 
     draw()
 
@@ -992,23 +1031,20 @@ class UiImport(eta.HasTraits):
 		try:
 		    openJSONgraph(self.data)
 		except:
-		    print("Warning: fail to process the JSON graph")
+		    print("Warning: fail to open the JSON graph")
 		    return
-	elif self.fname[-5:-1] == ".plo":
+	else:
 
 		try:
 		    self.data = sj.load(file(self.fname, "r"))
 		    try:
 			openNanoQtgraph(self.data, reversed = self.reversed)
 		    except:
-			print("Warning: ouch @ processing!")
+			print("Warning: fail to open the NanoQt graph")
 			return
 		except:
-		    print("Warning: ouch @ opening!")
+		    print("Warning: fail to open the NanoQt object")
 		    return
-	else:
-		print("type not known")
-		return
 
 
     def _open_polar_fired(self):

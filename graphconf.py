@@ -95,7 +95,7 @@ fancy_colors = [
 
 
 curve_line = {
-	"none":"None",
+	"none":"",
 	"solid": "-",
 	"dash": "--",
 	"dot": "--",
@@ -106,7 +106,7 @@ curve_line = {
 
 
 curve_marker = {
-	"none": "None",
+	"none": "",
 	"plus": "+",
 	"cross": "x",
 	"asterisk": "h",
@@ -196,12 +196,13 @@ def get_info():
 
 	n = 0
 
-	for i in gca().lines:
+	for i in cls():
 		print("# " + str(n)
-		+ "\tmarker: " + str(i.get_marker())
-		+ "\tline: " + str(i.get_linestyle())
-		+ "\tcolor: " + str(i.get_color())
-		+ "\tlen: " + str(len(i.get_xdata())))
+		+ "\tma: " + getp(i, 'marker')
+		+ "\tls: " + getp(i, 'ls')
+		+ "\tc: " + getp(i, 'c')
+		+ "\tl: " + str(len(getp(i, 'xdata')))
+		+ "\tv: " + str(getp(i, 'visible')))
 		n += 1
 
 
@@ -323,6 +324,9 @@ def get_data(layer = -1):
 	"""
 
 	return gca().lines[layer].get_data()
+
+
+
 
 
 
@@ -491,11 +495,17 @@ def remove_first(layer = 0):
 def remove_last(layer = None):
 
 	if layer == None:
-		gca().lines.pop()
+		cA().lines.pop()
 	else:
-		gca().lines.pop(layer)
+		cA().lines.pop(layer)
 	draw()
 
+
+def remove_last_patch():
+
+	if len(cA().patches) > 0:
+		cA().patches.pop()
+		draw()
 
 
 def line_matrix(xstep = 1, ystep = 1, bottom = None, top = None):
@@ -546,6 +556,49 @@ def line_matrix(xstep = 1, ystep = 1, bottom = None, top = None):
 
 
 
+def sort_filename(list2sort):
+
+	N = len(list2sort)
+
+	good = []
+	bad = []
+
+	for n in range(N):
+		try:
+			if list2sort[n][-3:-1] == 'lo':
+				good.append(list2sort[n])
+			else:
+				bad.append(list2sort[n])
+		except:
+			print("stuck", n)
+        
+	return {'good': good, 'bad': bad}
+
+
+
+def process_plot_to_png():
+	l = sort_filename(os.listdir("."))
+
+	for i in l["good"]:
+		openGraph(i)
+		if len(cls()) > 0: 
+			savefig(i + ".png")
+		close()
+
+
+
+def process_plot_to_pdf():
+	l = sort_filename(os.listdir("."))
+
+	for i in l["good"]:
+		openGraph(i)
+		if len(cls()) > 0: 
+			savefig(i + ".pdf")
+		close()
+
+
+
+
 ################################################################################
 #                                                                              #
 # Different class of usefull graph.                                            #
@@ -553,6 +606,11 @@ def line_matrix(xstep = 1, ystep = 1, bottom = None, top = None):
 # * (im | p)graph(...)                                                         #
 #                                                                              #
 ################################################################################
+
+import pylab
+
+def add_new_button():
+	pause()
 
 class graph:
 	"""
@@ -607,6 +665,81 @@ class polargraph:
 		polar()
 		pcolormesh(*args, **kwargs)
 
+
+
+class LassoFilter:
+
+	def __init__(self):
+		self.inside = True
+		self.xs = []
+		self.ys = []
+		self.cid = cf().canvas.mpl_connect('button_press_event', self._click)
+		self.kid = cf().canvas.mpl_connect('key_press_event', self._press)
+
+	def _click(self, event):
+		if event.inaxes != cA():
+			return
+		self.xs.append(event.xdata)
+		self.ys.append(event.ydata)
+		if len(self.xs) == 1:
+			cA().add_patch(Polygon(zip(self.xs, self.ys), True, alpha = 0.4))
+			draw()
+		if len(self.xs) > 1:
+			setp(cA().patches[-1], 'xy', zip(self.xs, self.ys))
+
+
+	def _press(self, event):
+		if event.key == 'x':
+			print("take outside into account")
+			self.inside = False
+		else:
+			print("take inside into account")
+			self.inside = True
+		remove_last_patch()
+		lasso_lines(zip(self.xs, self.ys), self.inside)
+		cf().canvas.mpl_disconnect(self.cid)
+		cf().canvas.mpl_disconnect(self.kid)
+		draw()
+	
+	def stop(self):
+		cf().canvas.mpl_disconnect(self.cid)
+		cf().canvas.mpl_disconnect(self.kid)
+
+
+
+def lasso_filter(lasso, points, inside = True):
+	
+	verts = array(lasso)
+	line_inside = []
+	line_outside = []
+
+	for i in range(len(points)):
+		if matplotlib.nxutils.pnpoly(points[i][0], points[i][1], verts) == True:
+			line_inside.append(points[i].tolist())
+		else:
+			line_outside.append(points[i].tolist())
+
+
+	if inside:
+		return line_inside
+	else:
+		return line_outside
+
+
+
+def lasso_lines(lasso, inside):
+	
+	lines_to_remove = []
+
+	for i in range(len(cls())):
+		new_line = lasso_filter(lasso, getp(cl(i), 'xydata'), inside)
+		x, y = hsplit(array(new_line), 2)
+		if len(x) == 0:
+			lines_to_remove.insert(0, i)
+		setp(cl(i), 'data', [x, y])
+
+	for i in lines_to_remove:
+		cA().lines.pop(i)
 
 
 ################################################################################
@@ -736,14 +869,11 @@ def saveJSONgraph(file_name = None):
 
 
 
-
 def openJSONgraph(bundle = None):
 	"""
 	Open the graph from JSON format
 	make a bundle of all graph's properties.
 	"""
-
-	figure()
 
 	# First, set figure parameters
 	
@@ -857,11 +987,42 @@ def openJSONgraph(bundle = None):
 
 def openNanoQtgraph(bundle, reversed = False):
 
-	figure()    
-	# setp(cA(), 'xlabel', bundle['x_label'])
-	# setp(cA(), 'ylabel', bundle['y_label'])
+	debug_string = ""
 
-	if bundle.has_key("curves"):
+	try :
+		setp(cA(), 'title', bundle['title']) 
+	except:
+		print('Warning: Fail to set the title: ' + bundle['title'])
+
+	try :
+		setp(cA(), 'xlabel', bundle['x_label'])
+	except:
+		print('Warning: Fail to set the x label: ' + bundle['x_label'])
+
+	try :
+		setp(cA(), 'ylabel', bundle['x_label'])
+	except:
+		print('Warning: Fail to set the y label: ' + bundle['y_label'])
+
+	try: 
+		if bundle['logscale_x']:
+			setp(cA(), 'xscale', 'log')
+		else:
+			setp(cA(), 'xscale', 'linear')
+	except: 
+		print('Warning: fail to set the xscale')
+
+	try: 
+		if bundle['logscale_y']:
+			setp(cA(), 'yscale', 'log')
+		else:
+			setp(cA(), 'yscale', 'linear')
+	except: 
+		print('Warning: Fail to set the yscale')
+
+
+	# if bundle.has_key("curves"):
+	try:
 
 		for n in range(len(bundle["curves"])):
 			
@@ -869,109 +1030,73 @@ def openNanoQtgraph(bundle, reversed = False):
 				
 				curvex, curvey = hsplit(array(bundle["curves"][n]["data"]), 2)
 				plot(curvex, curvey)
-				print("Plotted the curve #" + str(n))
 
-				print("pen_style " + curve_line[bundle["curves"][n]["options"]["pen_style"]])
-				if curve_line[bundle["curves"][n]["options"]["pen_style"]] == "Solid":
-					setp(cl(), 'ls', '-')
-				else:
+				try:
+					if str(bundle["curves"][n]["options"]["pen_color"]).startswith("0x"):
+						formatted_color = '#' + str(bundle["curves"][n]["options"]["pen_color"])[2:]
+					else:
+						formatted_color = str(bundle["curves"][n]["options"]["pen_color"])
+						setp(cl(), 'c', formatted_color)
+				except:
+					formatted_color = getp(cl(), 'c')
+					print("Warning: Fail to set color")
+
+				setp(cl(), 'mec', formatted_color)
+				setp(cl(), 'mfc', formatted_color)
+
+				try:
+					pen_style = bundle["curves"][n]["options"]["pen_style"]
+					line_style = curve_line[pen_style]
+					setp(cl(), 'ls', line_style)
+				except:
 					setp(cl(), 'ls', '')
+					print("Warning: Fail to set line style")
 
-				if curve_line[bundle["curves"][n]["options"]["pen_style"]] == "-":
-					setp(cl(), 'ls', '-')
-				else:
-					setp(cl(), 'ls', '')
+				try:
+					setp(cl(), 'marker', curve_marker[bundle["curves"][n]["options"]["symbol"]])
+				except:
+					setp(cl(), 'marker', 's')
+					print("Warning: Fail to set marker")
 
-				setp(cl(), 'lw', 1)
-				setp(cl(), 'marker', 's')
-				setp(cl(), 'ms', 3)
-		colorize()
-	else:
-		print("No data to process")
+				try:
+					setp(cl(), 'markersize', bundle["curves"][n]["options"]["symbol_size"])
+				except:
+					setp(cl(), 'markersize', 1)
+					print("Warning: Fail to set markersize")
+	except:
+		print("Warning: Fail to plot lines...")
 
+	try:
+		a = array(bundle["array"]["data"]) 
+		x, y = meshgrid(linspace(bundle["x_min"], bundle["x_max"], len(a)), linspace(bundle["y_min"], bundle["y_max"], len(a[0])))
+		if reversed:
+			pcolormesh(x, y, a.max() - a)
+		else:
+			pcolormesh(x, y, a)
+	except:
+		print("Warning: Fail to draw array...")
 
-
-def vestige_openNanoQtgraph(bundle, reversed = False):
-
-    figure()    
-    # setp(cA(), 'title', bundle['title']) 
-    # setp(cA(), 'xlabel', bundle['x_label'])
-    # setp(cA(), 'ylabel', bundle['y_label'])
-    
-    # if bundle['logscale_x']:
-    #    setp(cA(), 'xscale', 'log')
-    # else:
-    #    setp(cA(), 'xscale', 'linear')
-    
-    # if bundle['logscale_y']:
-    #    setp(cA(), 'yscale', 'log')
-    # else:
-    #    setp(cA(), 'yscale', 'linear')
-    
-    if bundle.has_key("curves"):
-
-	print("Load the curves")
-
-        for n in range(len(bundle["curves"])):
-
-	    print("Seek data in the curve layer #" + str(n))
-
-            if bundle["curves"][n] != None:
-
-                curvex, curvey = hsplit(array(bundle["curves"][n]["data"]), 2)
-                plot(curvex, curvey)
-		print("Plotted the curve #" + str(n))
-
-		# setp(cl(), 'ls', curve_line[bundle["curves"][n]["options"]["pen_style"]])
-
-                # if str(bundle["curves"][n]["options"]["pen_color"]).startswith("0x"):
-                #     formatted_color = '#' + str(bundle["curves"][n]["options"]["pen_color"])[2:]
-                # else:
-                #    formatted_color = str(bundle["curves"][n]["options"]["pen_color"])
-
-		# setp(gca().lines[-1], 'c', formatted_color)
-                # setp(gca().lines[-1], 'mec', formatted_color)
-                # setp(gca().lines[-1], 'mfc', formatted_color)
-    
-                # setp(gca().lines[-1], 'marker', curve_marker[bundle["curves"][n]["options"]["symbol"]])
-                # setp(gca().lines[-1], 'markersize', bundle["curves"][n]["options"]["symbol_size"])
-    
-    if bundle.has_key("array"):
-
-    	print("Load array")
-
-        a = array(bundle["array"]["data"]) 
-        x, y = meshgrid(linspace(bundle["x_min"], bundle["x_max"], len(a)), linspace(bundle["y_min"], bundle["y_max"], len(a[0])))
-        if reversed:
-            pcolormesh(x, y, a.max() - a)
-        else:
-            pcolormesh(x, y, a)
-
-    setp(cl(), 'ls', "")
-    setp(cl(), 'lw', 1)
-    colorize()
-
-    draw()
+	return
 
 
 
 def openNanoQtgraph_polar(bundle, reversed = False, deg_rad = 1):
     
-    figure()    
-    polar()
-    if bundle.has_key("array"):
-        a = array(bundle["array"]["data"]) 
-        x, y = meshgrid(linspace(bundle["x_min"], bundle["x_max"], len(a)), linspace(bundle["y_min"], bundle["y_max"], len(a[0])))
-        if reversed:
-            pcolormesh(deg_rad*y, x, a.max() - a)
-        else:
-            pcolormesh(deg_rad*y, x, a)
+	polar()
 
-    draw()
+	try:
+		a = array(bundle["array"]["data"]) 
+		x, y = meshgrid(linspace(bundle["x_min"], bundle["x_max"], len(a)), linspace(bundle["y_min"], bundle["y_max"], len(a[0])))
+		if reversed:
+			pcolormesh(deg_rad*y, x, a.max() - a)
+		else:
+			pcolormesh(deg_rad*y, x, a)
+	except:
+		print("Warning: Fail to draw array...")
 
 
 
-def openGraph(fname, reversed = False):
+def openGraph2(fname, reversed = False):
 
 	if fname[-7:-1] == ".pyplo":
 	
@@ -1010,17 +1135,45 @@ def openGraph(fname, reversed = False):
 		return
 
 
+def openGraph(fname, reversed = False):
+
+	try:
+		f = file(fname, "r")
+	except:
+		print("Warning: Fail to open the file")
+		return
+
+	try:
+		data = sj.load(f)
+	except:
+		print("Warning: Fail to deseriliaze the JSON string")
+		return
+
+	figure ()
+
+	try:
+		openJSONgraph(data)
+	except:
+		print("Warning: Fail to open the graph in Python format")
+
+	try:
+		openNanoQtgraph(data, reversed = reversed)
+	except:
+		print("Warning: Fail to open the graph in NanoQt format!")
+
+
 
 def openPolar(fname, reversed = False, angle = 2 * math.pi):
 
 	try:
 		data = sj.load(file(fname, "r"))
+		figure()
 		try:
 			openNanoQtgraph_polar(data, reversed = reversed, deg_rad = eval(angle))
 		except:
 			print("Warning: ouch @ processing!")
 	except:
-		print("Warning: ouch @ opening!")
+		print("Warning: Fail to open Polar plot")
 
 
 
@@ -1031,50 +1184,17 @@ class UiImport(eta.HasTraits):
     angle = eta.Str("2*pi")
     reversed = eta.Bool()
     open_graph = eta.Button("Open graph")
-    # open_NanoQt_graph = eta.Button("Open NanoQt graph")
     open_polar = eta.Button("Open polar")
-    reload = eta.Button("Reload")
    
  
     def __init__(self, fname = ""):
         self.fname = _ip.magic("pwd ")
+        self.directory = _ip.magic("pwd ")
+        self.current_directory = self.directory
 
-    def _reload_fired(self):
-        self.fname = _ip.magic("pwd ")
 
     def _open_graph_fired(self):
-
-	if self.fname[-7:-1] == ".pyplo":
-	
-		try:
-		    self.data = sj.load(file(self.fname, "r"))
-		except:
-		    print("Warning: fail to open the JSON graph")
-		    return
-		
-		try:
-		    self.data.has_key('axes')
-		except:
-		    print("does not contains axes...")
-		    return
-
-		try:
-		    openJSONgraph(self.data)
-		except:
-		    print("Warning: fail to open the JSON graph")
-		    return
-	else:
-
-		try:
-		    self.data = sj.load(file(self.fname, "r"))
-		    try:
-			openNanoQtgraph(self.data, reversed = self.reversed)
-		    except:
-			print("Warning: fail to open the NanoQt graph")
-			return
-		except:
-		    print("Warning: fail to open the NanoQt object")
-		    return
+        openGraph(self.fname, self.reversed)
 
 
     def _open_polar_fired(self):
@@ -1090,23 +1210,18 @@ class UiImport(eta.HasTraits):
 
     open_graph = etum.Action(name = 'open graph', action = '_open_graph_fired')
 
-    # open_nanoqt_graph = etum.Action(name = 'open NanoQt graph', action = '_open_NanoQt_graph_fired')
-
     open_polar = etum.Action(name = 'open polar', action = '_open_polar_fired')
-    reload = etum.Action(name = 'reload', action = '_reload_fired')
 
 
     view = etua.View(
-        # etua.Item("data", style="simple"),
         etua.Item('angle'),
         etua.Item('reversed'),
-        # etua.Item('fname', editor=etua.FileEditor(filter = ['*.plot'], auto_set = True), style = "custom"),
         etua.Item('fname', editor=etua.FileEditor(auto_set = True), style = "custom"),
         resizable = True,
         scrollable = True,
 	title= "UiImport",
-	toolbar = etum.ToolBar(open_graph, open_polar, reload),
-        height = 640,
+	toolbar = etum.ToolBar(open_graph, open_polar),
+        height = 720,
         width = 800
     )
 
@@ -1124,6 +1239,7 @@ class UiBrowser(eta.HasTraits):
     directory = eta.Directory()
     current_directory = eta.Str("")
     cd = eta.Button("Directory")
+    plot_to_png = eta.Button(".plot to .png")
    
  
     def __init__(self):
@@ -1132,11 +1248,17 @@ class UiBrowser(eta.HasTraits):
 
 
     def _cd_fired(self):
-
 	_ip.magic("cd " + self.directory)
         self.current_directory = _ip.magic("pwd ")
 
+    def _plot_to_png_fired(self):
+        self.current_directory = _ip.magic("pwd ")
+    	print("Convert .plot to .png in " + _ip.magic("pwd"))
+	process_plot_to_png()
+	print("Convert finished")
+
     change_directory = etum.Action(name = 'Directory', action = '_cd_fired')
+    convert_plot_png = etum.Action(name = '.plot to .png', action = '_plot_to_png_fired')
 
     view = etua.View(
         etua.Item('current_directory'),
@@ -1144,7 +1266,7 @@ class UiBrowser(eta.HasTraits):
         resizable = True,
         scrollable = True,
 	title= "Browser",
-	toolbar = etum.ToolBar(change_directory),
+	toolbar = etum.ToolBar(change_directory, convert_plot_png),
         height = 640,
         width = 800
     )

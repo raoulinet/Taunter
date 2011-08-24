@@ -23,40 +23,63 @@ def tsv2rec(fname):
 
 
 def smooth(t, begin, end):
-    if t < begin:
-        return 0
-    else:
-        if (t >= begin) and (t < end):
-            return (sin((pi/2.) * (t - begin)/(end - begin)))**2
-        else:
-            return 1
+
+	t = copy(t)
+	for i in range(len(t)):
+		if t[i] < begin:
+			t[i] = 0
+		else:
+			if (t[i] >= begin) and (t[i] < end):
+				t[i] = (sin((pi/2.) * (t[i] - begin)/(end - begin)))**2
+			else:
+				t[i] = 1
+	return t
 
 
 def build_waveform(waveform_description, awg_samplingrate = 24):
-    """
-      waveform = [
-      {"amplitude": 1, "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0},
-      {"amplitude": 0, "length": 1, "rise": 0.0, "frequency": 0, "phase": 0},
-      {"amplitude": 1, "length": 20, "rise": 0.2, "frequency": ,"phase": 0}
-      ]
-    """
-    
-    awg_samplingrate = 1.*awg_samplingrate
-    waveform = []
-    for i in range(len(waveform_description)):
-        length = waveform_description[i]["length"]
-        N = round(length * awg_samplingrate)
-        rise = waveform_description[i]["rise"]
-        amplitude = waveform_description[i]["amplitude"]
-        frequency = waveform_description[i]["frequency"]
-        phase = waveform_description[i]["phase"]
-        for j in range(N):
-            t = j/awg_samplingrate
-            # env = smooth(t, 0, rise) * (1 - smooth(t, length - rise, length)) 
-            waveform.append(512 + 511 * amplitude * sin(2 * pi * (phase/360. + frequency * t)))
-    waveform[len(waveform) - 1] = 511
-    return waveform;
+	"""
+	waveform = [
+	{"amplitude": 1, "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0, "fall": 0}
+	]
+	"""
 
+	waveform = []
+	for i in waveform_description:
+		length = i["length"]
+		N = round(length * awg_samplingrate)
+		rise = i["rise"]
+		fall = i["fall"]
+		amplitude = i["amplitude"]
+		frequency = i["frequency"]
+		phase = i["phase"]
+		t = arange(0, length, 1/float(awg_samplingrate))
+		env = smooth(t, 0, rise) * (1 - smooth(t, length - fall, length)) 
+		tmp_waveform = -512 + floor(1024. * env * amplitude * sin(2 * pi * (phase/360. + frequency * t)))
+		waveform = concatenate((waveform, tmp_waveform));
+	return waveform;
+
+
+def build_signal(waveform_description, awg_samplingrate = 24):
+	"""
+	waveform = [
+	{"amplitude": 1, "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0, "fall": 0}
+	]
+	"""
+
+	waveform = []
+	for i in waveform_description:
+		length = i["length"]
+		rise = i["rise"]
+		fall = i["fall"]
+		amplitude = i["amplitude"]
+		frequency = i["frequency"]
+		phase = i["phase"]
+
+		t = arange(0, length, 1/float(awg_samplingrate))
+		env = smooth(t, 0, rise) * (1 - smooth(t, length - fall, length)) 
+		tmp_waveform = env * amplitude * sin(2 * pi * (phase/360. + frequency * t))
+		waveform = concatenate((waveform, tmp_waveform));
+	return waveform;
 
 
 def E(m, k, h):
@@ -70,6 +93,42 @@ def LL(m, h):
 
 def G(m, h, a):
 	return -a * cross(m, cross(m, h))
+
+
+def adjust_size(a, new_size, new_value = 0):
+	return concatenate((a, linspace(new_value, new_value, new_size - len(a))))
+
+def astroid():
+	THETA, PHI = meshgrid(linspace(0, pi/2, 100), linspace(0, 2*pi, 100)) 
+	R = 1/(fabs(cos(THETA))**(2/3.) + fabs(sin(THETA)) ** (2/3.))**(3/2.)
+	X = R * sin(THETA) * cos(PHI)
+	Y = R * sin(THETA) * sin(PHI)
+	Z = R * cos(THETA)
+	emm.mesh(X, Y, Z)
+
+
+def process_contour():
+	arr = getp(ci(), 'array')
+	print "arr size", len(arr), sqrt(len(arr))
+	arr = arr.reshape((sqrt(len(arr)), sqrt(len(arr))))
+	contourgraph(arr, 1)
+	p = getp(getp(cA(), 'children')[2], 'paths')
+	p = p[0].to_polygons()[0]
+	a, b = hsplit(p, 2)
+	plot(a, b)
+	rr = sqrt(a**2 + b**2)
+	rr = rr/rr.max()
+	th = arctan2(b, a)
+	print "th size", len(th)
+	graph(rr*cos(th), rr*sin(th))
+	th = pi/2. - th
+	plot(rr*cos(th), rr*sin(th))
+	r = meshgrid(rr, rr)[0]
+	theta, phi = meshgrid(th, linspace(0, 2*pi, len(th))) 
+	x = r * sin(theta) * cos(phi)
+	y = r * sin(theta) * sin(phi)
+	z = r * cos(theta)
+	emm.mesh(x, y, z)
 
 
 

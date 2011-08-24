@@ -7,6 +7,8 @@ import simplejson as sj
 import os
 import math
 
+def import_emm_module():
+	import enthought.mayavi.mlab as emm
 
 ################################################################################
 #                                                                              #
@@ -330,17 +332,21 @@ def get_data(layer = -1):
 
 
 
-def rotate_data(theta = 0):
-	"""
-	rotate_data
-	"""
+def rotate_data(theta = 0, layer = None):
+    """
+    rotate_data
+    """
 
-	for i in gca().lines:
-		_x1, _y1 = i.get_data()
-		i.set_xdata(cos(theta) * _x1 + sin(theta) * _y1)
-		i.set_ydata(-sin(theta) * _x1 + cos(theta) * _y1)
+    if layer == None:
+        layer = range(len(gca().lines))
 
-	draw()
+    for j in layer:
+        i = gca().lines[j]
+        _x1, _y1 = i.get_data()
+        i.set_xdata(cos(theta) * _x1 + sin(theta) * _y1)
+        i.set_ydata(-sin(theta) * _x1 + cos(theta) * _y1)
+
+    draw()
 	
 
 
@@ -457,19 +463,22 @@ def explode_graph(num = None):
 
 def copy_paste_graph(source_fig, drop_fig, xoffset = 0, xmul = 1, yoffset = 0, ymul = 1):
 
-	source = figure(source_fig)
-	drop = figure(drop_fig)
+    source = figure(source_fig)
+    drop = figure(drop_fig)
 
-	for i in range(len(source.axes[-1].lines)):
-		x, y = source.axes[-1].lines[i].get_data()
-		marker = source.axes[-1].lines[i].get_marker()
-		markersize = source.axes[-1].lines[i].get_markersize()
-		linestyle = source.axes[-1].lines[i].get_linestyle()
-		linewidth = source.axes[-1].lines[i].get_linewidth()
-		color = source.axes[-1].lines[i].get_color()
-		label = source.axes[-1].lines[i].get_label()
-		figure(drop.number)
-		plot(xmul*array(x) + xoffset, ymul*array(y) + yoffset, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)
+    for i in source.axes[-1].lines:
+        x, y = getp(i, 'data')
+        marker = getp(i, 'marker')
+        ms = getp(i, 'ms')
+        mec = getp(i, 'mec')
+        mfc = getp(i, 'mfc')
+        ls = getp(i, 'ls')
+        lw = getp(i, 'lw')
+        c = getp(i, 'c')
+        label = getp(i, 'label')
+        figure(drop.number)
+        plot(xmul*array(x) + xoffset, ymul*array(y) + yoffset)
+        setp(cl(), 'marker', marker, 'ms', ms, 'mec', mec, 'mfc', mfc, 'ls', ls, 'lw', lw, 'c', c, 'label', label)
 
 
 
@@ -499,6 +508,52 @@ def remove_last(layer = None):
 	else:
 		cA().lines.pop(layer)
 	draw()
+
+
+def hide_line(layer = None):
+
+    if layer == None:
+        for i in arange(len(cls()) - 1, -1, -1):
+            if getp(cl(i), 'visible') == True:
+                setp(cl(i), 'visible', False)
+                return
+    else:
+        if type(layer) == list:
+            for i in arange(layer[0], layer[1]):
+                if getp(cl(i), 'visible') == True:
+                    setp(cl(i), 'visible', False)
+        else:
+            setp(cl(layer), 'visible', False)
+
+
+def show_line(layer = None):
+
+    if layer == None:
+        for i in range(len(cls())):
+            if getp(cl(i), 'visible') == False:
+                setp(cl(i), 'visible', True)
+                return
+    else:
+        if type(layer) == list:
+            for i in arange(layer[0], layer[1]):
+                if getp(cl(i), 'visible') == False:
+                    setp(cl(i), 'visible', True)
+        else:
+            setp(cl(layer), 'visible', True)
+
+
+
+def show_all_lines():
+
+    for i in cls():
+        setp(i, 'visible', True)
+
+
+def hide_all_lines():
+
+    for i in cls():
+        setp(i, 'visible', False)
+
 
 
 def remove_last_patch():
@@ -612,6 +667,8 @@ import pylab
 def add_new_button():
 	pause()
 
+
+
 class graph:
 	"""
 	Overlaod of figure() + plot() function
@@ -651,6 +708,33 @@ class pgraph:
 	def __init__(self, *args, **kwargs):
 		figure()
 		pcolormesh(*args, **kwargs)
+
+
+class contourgraph:
+	"""
+	Overlaod of figure() + contour() function
+	a 2 in 1
+	colorgraph(...) to open and plot
+	pcolormesh(...) to append a line in the graph
+	"""
+
+	def __init__(self, *args, **kwargs):
+		figure()
+		contour(*args, **kwargs)
+
+
+class contourfgraph:
+	"""
+	Overlaod of figure() + contour() function
+	a 2 in 1
+	colorgraph(...) to open and plot
+	pcolormesh(...) to append a line in the graph
+	"""
+
+	def __init__(self, *args, **kwargs):
+		figure()
+		contourf(*args, **kwargs)
+
 
 class polargraph:
 	"""

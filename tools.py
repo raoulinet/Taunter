@@ -95,6 +95,28 @@ def G(m, h, a):
 	return -a * cross(m, cross(m, h))
 
 
+def close_selected(arr):
+	for i in arr:
+		close(i)
+
+def plot_curves(num, l, size):
+	for i in l:
+		openGraph(i);
+		arr = getp(ci(), 'array')
+		close()
+		n = sqrt(len(arr))
+		arr = arr.reshape((n, n))
+		x = linspace(size[0], size[1], n)
+		y = linspace(size[2], size[3], n)
+		contourgraph(x, y, arr, 1);
+		p = getp(getp(cA(), 'children')[2], 'paths')
+		p = p[0].to_polygons()[0]
+		a, b = hsplit(p, 2)
+		close()
+		figure(num);
+		plot(a, b);
+
+
 def adjust_size(a, new_size, new_value = 0):
 	return concatenate((a, linspace(new_value, new_value, new_size - len(a))))
 
@@ -130,6 +152,34 @@ def process_contour():
 	z = r * cos(theta)
 	emm.mesh(x, y, z)
 
+
+def process_surface(num_fig, angle):
+	figure(num_fig)
+	curves = []
+	maxval = 0
+	for i in cls():
+		curves.append([getp(i, 'xdata').tolist(), getp(i, 'ydata').tolist()])
+		if len(curves[-1][0]) > maxval:
+			maxval = len(curves[-1][0])
+
+	for i in curves:
+		i[0] = adjust_size(i[0], maxval)
+		i[1] = adjust_size(i[1], maxval)
+
+	rr = []
+	th = []
+	for i in curves:
+		rr.append(sqrt(i[0]**2 + i[1]**2))
+		rr[-1] = rr[-1]/rr[-1].max()
+		th.append(arctan2(i[1], i[0]))
+		th[-1] = pi/2. - th[-1]
+		# graph(rr[-1]*cos(th[-1]), rr[-1]*sin(th[-1]))
+
+	theta, phi = meshgrid(linspace(0, pi/2., len(th[0])), angle)
+	x = rr * sin(th) * cos(phi)
+	y = rr * sin(th) * sin(phi)
+	z = rr * cos(th)
+	emm.mesh(x, y, z)
 
 
 def powow(x, n):

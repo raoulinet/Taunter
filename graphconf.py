@@ -161,12 +161,13 @@ def cA(num = -1):
 
 
 
-def ci():
+def ci(image = -1):
 	"""
 	ci
 	"""
 
 	return gci()
+	return gcf().image[-1]
 
 
 
@@ -286,7 +287,7 @@ def cE(num = -1):
 
 
 
-def colorize(palette = "fancy", offset = 0, period = None):
+def colorize(palette = "fancy", offset = 0, period = None, reverse = False):
 	"""
 	to colorize lines depdening of layers
 	"""
@@ -311,6 +312,10 @@ def colorize(palette = "fancy", offset = 0, period = None):
 		period = len(colors)
 
 	n = len(gca().lines)
+
+
+	if (reverse):
+		colors.reverse()
 
 	for i in range(n):
 		tmp_col = colors[i%period + offset%(len(colors) - 1)]
@@ -668,6 +673,21 @@ def add_new_button():
 	pause()
 
 
+def show_colormap():
+	# rc('text', usetex=False)
+	a = outer(arange(0, 1, 0.01), ones(10))
+	figure(figsize = (10, 5))
+	subplots_adjust(top = 0.8, bottom = 0.05, left = 0.01, right = 0.99)
+	maps=[m for m in cm.datad if not m.endswith("_r")]
+	maps.sort()
+	l = len(maps) + 1
+	for i, m in enumerate(maps):
+		subplot(1, l, i + 1)
+		axis("off")
+		imshow(a, aspect='auto', cmap=get_cmap(m), origin="lower")
+		title(m, rotation=45, fontsize=10)
+
+
 
 class graph:
 	"""
@@ -748,6 +768,19 @@ class polargraph:
 		figure()
 		polar()
 		pcolormesh(*args, **kwargs)
+
+
+
+def savepdfpng(fname, dpi = 300):
+	for i in getp(cA(), 'children'):
+		setp(i, 'visible', False)
+	setp(ci(), 'True')
+	savefig(fname + '.png', dpi = dpi)
+	setp(ci(), 'False')
+	for i in getp(cA(), 'children'):
+		setp(i, 'visible', True)
+	savefig(fname + '.pdf')
+
 
 
 

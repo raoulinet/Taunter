@@ -82,6 +82,24 @@ def build_signal(waveform_description, awg_samplingrate = 24):
 	return waveform;
 
 
+
+def skim_array(arr, minima, maxima, col):
+
+	to_skim = copy(arr)
+	to_skim = to_skim.tolist()
+	for i in range(len(arr)):
+		for j in range(len(arr[i])):
+			if arr[i][j] == maxima:
+				to_skim[i][j] = (1, 0, 0, 0)
+			else:
+				if arr[i][j] == minima:
+					to_skim[i][j] = (0, 1, 0, 0)
+				else:
+					to_skim[i][j] = col
+	return to_skim
+
+
+
 def E(m, k, h):
     return - h[0]*m[0] + - h[1]*m[1] + - h[2]*m[2] - k[0] * m[0]**2 - k[1] * m[1]**2 - k[2] * m[2]**2  - k[3] * (m[0]**2 * m[1]**2 + m[1]**2 * m[2]**2 + m[2]**2 * m[0]**2)
 
@@ -243,8 +261,25 @@ def mvtxt():
     draw()
 
 
+def mouse_fit():
+	_points = ginput(2, show_clicks = False)
+	return (_points[1][1] - _points[0][1])/(_points[1][0] - _points[0][0])
 
-def fit_leastsq(func = (lambda coef, a: coef[0] + coef[1] * a), data_X = [], data_Y = [], init_coef = []):
+
+def fit_linear(data_X = [], data_Y = [], init_coef = []):
+    """
+    Least square fit routine
+    func = lambda coef, a: coef[0] + coef[1] * a # Target function
+    """
+    func = (lambda coef, a: coef[0] + coef[1] * a) 
+    data_X = array(data_X)
+    data_Y = array(data_Y)
+    init_coef = array(init_coef)
+    errfunc = lambda coef, X, Y: func(coef, X) - Y # Distance to the target function
+    return scipy.optimize.leastsq(errfunc, init_coef[:], args=(data_X, data_Y))
+
+
+def fit_leastsq(func, data_X = [], data_Y = [], init_coef = []):
     """
     Least square fit routine
     func = lambda coef, a: coef[0] + coef[1] * a # Target function
@@ -258,4 +293,188 @@ def fit_leastsq(func = (lambda coef, a: coef[0] + coef[1] * a), data_X = [], dat
 
 
 
+
+def griddata(x, y, z, binsize=0.01, retbin=True, retloc=True):
+	"""
+	Place unevenly spaced 2D data on a grid by 2D binning (nearest
+	neighbor interpolation).
+
+	Parameters
+	----------
+	x : ndarray (1D)
+	The idependent data x-axis of the grid.
+	y : ndarray (1D)
+	The idependent data y-axis of the grid.
+	z : ndarray (1D)
+	The dependent data in the form z = f(x,y).
+	binsize : scalar, optional
+	The full width and height of each bin on the grid.  If each
+	bin is a cube, then this is the x and y dimension.  This is
+	the step in both directions, x and y. Defaults to 0.01.
+	retbin : boolean, optional
+	Function returns `bins` variable (see below for description)
+	if set to True.  Defaults to True.
+	retloc : boolean, optional
+	Function returns `wherebins` variable (see below for description)
+	if set to True.  Defaults to True.
+
+	Returns
+	-------
+	grid : ndarray (2D)
+	The evenly gridded data.  The value of each cell is the median
+	value of the contents of the bin.
+	bins : ndarray (2D)
+	A grid the same shape as `grid`, except the value of each cell
+	is the number of points in that bin.  Returns only if
+	`retbin` is set to True.
+	wherebin : list (2D)
+	A 2D list the same shape as `grid` and `bins` where each cell
+	contains the indicies of `z` which contain the values stored
+	in the particular bin.
+
+	Revisions
+	---------
+	2010-07-11  ccampo  Initial version
+	"""
+	# get extrema values.
+	xmin, xmax = x.min(), x.max()
+	ymin, ymax = y.min(), y.max()
+
+	# make coordinate arrays.
+	xi      = np.arange(xmin, xmax+binsize, binsize)
+	yi      = np.arange(ymin, ymax+binsize, binsize)
+	xi, yi = np.meshgrid(xi,yi)
+
+	# make the grid.
+	grid           = np.zeros(xi.shape, dtype=x.dtype)
+	nrow, ncol = grid.shape
+	if retbin: bins = np.copy(grid)
+
+	# create list in same shape as grid to store indices
+	if retloc:
+		wherebin = np.copy(grid)
+		wherebin = wherebin.tolist()
+
+	# fill in the grid.
+	for row in range(nrow):
+		for col in range(ncol):
+			xc = xi[row, col]    # x coordinate.
+			yc = yi[row, col]    # y coordinate.
+
+			# find the position that xc and yc correspond to.
+			posx = np.abs(x - xc)
+			posy = np.abs(y - yc)
+			ibin = np.logical_and(posx < binsize/2., posy < binsize/2.)
+			ind  = np.where(wbin == True)[0]
+
+			# fill the bin.
+			bin = z[ibin]
+			if retloc: wherebin[row][col] = ind
+			if retbin: bins[row, col] = bin.size
+			if bin.size != 0:
+				binval         = np.median(bin)
+				grid[row, col] = binval
+			else:
+				grid[row, col] = np.nan   # fill empty bins with nans.
+
+			# return the grid
+	if retbin:
+		if retloc:
+			return grid, bins, wherebin
+		else:
+			return grid, bins
+	else:
+		if retloc:
+			return grid, wherebin
+		else:
+			return grid
+
+
+
+def cmap_map(function,cmap):
+	""" Applies function (which should operate on vectors of shape 3:
+	[r, g, b], on colormap cmap. This routine will break any discontinuous     points in a colormap.
+
+	light_jet = cmap_map(lambda x: x/2+0.5, cm.jet)
+	x,y=mgrid[1:2,1:10:0.1]
+	imshow(y, cmap=light_jet)
+	"""
+	cdict = cmap._segmentdata
+	step_dict = {}
+	# Firt get the list of points where the segments start or end
+	for key in ('red','green','blue'):
+		step_dict[key] = map(lambda x: x[0], cdict[key])
+	step_list = sum(step_dict.values(), [])
+	step_list = array(list(set(step_list)))
+	# Then compute the LUT, and apply the function to the LUT
+	reduced_cmap = lambda step : array(cmap(step)[0:3])
+	old_LUT = array(map( reduced_cmap, step_list))
+	new_LUT = array(map( function, old_LUT))
+	# Now try to make a minimal segment definition of the new LUT
+	cdict = {}
+	for i,key in enumerate(('red','green','blue')):
+		this_cdict = {}
+		for j,step in enumerate(step_list):
+			if step in step_dict[key]:
+				this_cdict[step] = new_LUT[j,i]
+			elif new_LUT[j,i]!=old_LUT[j,i]:
+				this_cdict[step] = new_LUT[j,i]
+	colorvector=  map(lambda x: x + (x[1], ), this_cdict.items())
+	colorvector.sort()
+	cdict[key] = colorvector
+
+	return matplotlib.colors.LinearSegmentedColormap('colormap',cdict,1024)
+
+
+def cmap_discretize(cmap, N):
+	"""Return a discrete colormap from the continuous colormap cmap.
+
+	cmap: colormap instance, eg. cm.jet. 
+	N: Number of colors.
+
+	Example
+	x = resize(arange(100), (5,100))
+	djet = cmap_discretize(cm.jet, 5)
+	imshow(x, cmap=djet)
+	"""
+
+	cdict = cmap._segmentdata.copy()
+	# N colors
+	colors_i = linspace(0,1.,N)
+	# N+1 indices
+	indices = linspace(0,1.,N+1)
+	for key in ('red','green','blue'):
+		# Find the N colors
+		D = array(cdict[key])
+		I = interpolate.interp1d(D[:,0], D[:,1])
+		colors = I(colors_i)
+		# Place these colors at the correct indices.
+		A = zeros((N+1,3), float)
+		A[:,0] = indices
+		A[1:,1] = colors
+		A[:-1,2] = colors
+		# Create a tuple for the dictionary.
+		L = []
+		for l in A:
+			L.append(tuple(l))
+		cdict[key] = tuple(L)
+	# Return colormap object.
+	return matplotlib.colors.LinearSegmentedColormap('colormap',cdict,1024)
+
+
+def cmap_xmap(function,cmap):
+	""" Applies function, on the indices of colormap cmap. Beware, function
+	should map the [0, 1] segment to itself, or you are in for surprises.
+
+	See also cmap_xmap.
+	"""
+	cdict = cmap._segmentdata
+	function_to_map = lambda x : (function(x[0]), x[1], x[2])
+	for key in ('red','green','blue'):
+		cdict[key] = map(function_to_map, cdict[key])
+		cdict[key].sort()
+		assert (cdict[key][0]<0 or cdict[key][-1]>1), "Resulting indices extend out of the [0, 1] segment."
+
+
+	return matplotlib.colors.LinearSegmentedColormap('colormap',cdict,1024)
 

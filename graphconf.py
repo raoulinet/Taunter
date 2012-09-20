@@ -704,20 +704,55 @@ def process_plot_to_pdf():
 #                                                                              #
 ################################################################################
 
+
+
 import pylab
 
-def add_new_button():
-	pause()
+
+
+def tight_axis():
+
+	xmin = Inf
+	xmax = -Inf
+	ymin = Inf
+	ymax = -Inf
+	
+	for i in clv():
+		x, y = getp(i, 'data')
+		if x.min() < xmin and x.min() != -Inf:
+			xmin = x.min()
+		if x.max() > xmax and x.max() != Inf:
+			xmin = x.max()
+		if y.min() < ymin and y.min() != -Inf:
+			ymin = y.min()
+		if y.max() < ymax and y.max() != Inf:
+			ymax = y.max()
+	
+	if xmin != Inf:
+		axis(xmin=xmin)
+	
+	if xmax != -Inf:
+		axis(xmax=xmax)
+	
+	if ymin != Inf:
+		axis(ymin=ymin)
+	
+	if ymax != -Inf:
+		axis(ymax=ymax)
+	
+	print (xmin, xmax, ymin, ymax)
+
 
 
 def show_colormap():
-	# rc('text', usetex=False)
+	
 	a = outer(arange(0, 1, 0.01), ones(10))
 	figure(figsize = (10, 5))
 	subplots_adjust(top = 0.8, bottom = 0.05, left = 0.01, right = 0.99)
 	maps=[m for m in cm.datad if not m.endswith("_r")]
 	maps.sort()
 	l = len(maps) + 1
+
 	for i, m in enumerate(maps):
 		subplot(1, l, i + 1)
 		axis("off")

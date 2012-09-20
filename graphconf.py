@@ -344,21 +344,12 @@ def colorize(palette = "fancy", offset = 0, period = None, reverse = False):
 
 
 def get_data(layer = -1):
-	"""
-	get_data
-	"""
 
 	return gca().lines[layer].get_data()
 
 
 
-
-
-
 def rotate_data(theta = 0, layer = None):
-    """
-    rotate_data
-    """
 
     if layer == None:
         layer = range(len(gca().lines))
@@ -374,9 +365,6 @@ def rotate_data(theta = 0, layer = None):
 
 
 def translate_data(displacement = 0):
-	"""
-	translate_data
-	"""
 
 	for i in gca().lines:
 		_x1, _y1 = i.get_data()
@@ -388,9 +376,6 @@ def translate_data(displacement = 0):
 
 
 def rotate_data_by_mouse():
-	"""
-	rotate_data_by_mouse
-	"""
 
 	_p = ginput(2, show_clicks=False)
 
@@ -410,9 +395,6 @@ def rotate_data_by_mouse():
 
 
 def translate_data_by_mouse(layer = None):
-	"""
-	translate_data_by_mouse	
-	"""
 
 	_p = ginput(2, show_clicks=False)
 
@@ -427,6 +409,7 @@ def translate_data_by_mouse(layer = None):
 		_x1, _y1 = gca().lines[layer].get_data()
 		gca().lines[layer].set_xdata(_x1 + xdisplacement)
 		gca().lines[layer].set_ydata(_y1 + ydisplacement)	
+	
 	else:
 		for i in gca().lines:
 			_x1, _y1 = i.get_data()
@@ -438,15 +421,13 @@ def translate_data_by_mouse(layer = None):
 
 
 def get_index_list():
-	"""
-	get_index_list
-	"""
 
 	n = 0
 
 	for i in gca().lines:
 		print("# " + str(n)+ "\tmarker: " + str(i.get_marker()) + "\tline: " + str(i.get_linestyle()) + "\tcolor: " + str(i.get_color()) + "\tlen: " + str(len(i.get_xdata())))
 		n += 1
+	
 	return len(gca().lines)
 
 

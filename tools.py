@@ -247,7 +247,7 @@ def adjust_size(a, new_size, new_value = 0):
 	return concatenate((a, linspace(new_value, new_value, new_size - len(a))))
 
 def astroid():
-	THETA, PHI = meshgrid(linspace(0, pi/2, 100), linspace(0, 2*pi, 100)) 
+	THETA, PHI = meshgrid(linspace(0, pi/2, 100), linspace(3*pi/4., 4*pi/2., 100)) 
 	R = 1/(fabs(cos(THETA))**(2/3.) + fabs(sin(THETA)) ** (2/3.))**(3/2.)
 	X = R * sin(THETA) * cos(PHI)
 	Y = R * sin(THETA) * sin(PHI)

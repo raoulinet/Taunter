@@ -4,11 +4,20 @@ import enthought.traits.ui.menu as etum
 import enthought.traits.ui.wx.tree_editor as etuwt
 import enthought.pyface.api as epa
 import simplejson as sj
+import traits.api as eta
+import traitsui.api as etua
+import traitsui.menu as etum
+import traitsui.wx.tree_editor as etuwt
+import pyface.api as epa
 import os
+import glob
 import math
+import pprint
+import simplejson as sj
 
 def import_emm_module():
 	import enthought.mayavi.mlab as emm
+	import mayavi.mlab as emm
 
 ################################################################################
 #                                                                              #

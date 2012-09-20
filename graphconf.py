@@ -673,25 +673,26 @@ def sort_filename(list2sort):
 
 
 def process_plot_to_png():
+
 	l = sort_filename(os.listdir("."))
 
 	for i in l["good"]:
 		openGraph(i)
-		if len(cls()) > 0: 
+		if len(clv()) > 0: 
 			savefig(i + ".png")
 		close()
 
 
 
 def process_plot_to_pdf():
+
 	l = sort_filename(os.listdir("."))
 
 	for i in l["good"]:
 		openGraph(i)
-		if len(cls()) > 0: 
+		if len(clv()) > 0: 
 			savefig(i + ".pdf")
 		close()
-
 
 
 

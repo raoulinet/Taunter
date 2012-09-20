@@ -925,6 +925,7 @@ class getSquare:
 class LassoFilter:
 
 	def __init__(self):
+
 		self.inside = True
 		self.xs = []
 		self.ys = []
@@ -932,24 +933,29 @@ class LassoFilter:
 		self.kid = cf().canvas.mpl_connect('key_press_event', self._press)
 
 	def _click(self, event):
+
 		if event.inaxes != cA():
 			return
+
 		self.xs.append(event.xdata)
 		self.ys.append(event.ydata)
+
 		if len(self.xs) == 1:
 			cA().add_patch(Polygon(zip(self.xs, self.ys), True, alpha = 0.4))
 			draw()
+
 		if len(self.xs) > 1:
 			setp(cA().patches[-1], 'xy', zip(self.xs, self.ys))
 
-
 	def _press(self, event):
+
 		if event.key == 'x':
 			print("take outside into account")
 			self.inside = False
 		else:
 			print("take inside into account")
 			self.inside = True
+
 		remove_last_patch()
 		lasso_lines(zip(self.xs, self.ys), self.inside)
 		cf().canvas.mpl_disconnect(self.cid)
@@ -957,6 +963,7 @@ class LassoFilter:
 		draw()
 	
 	def stop(self):
+
 		cf().canvas.mpl_disconnect(self.cid)
 		cf().canvas.mpl_disconnect(self.kid)
 
@@ -974,7 +981,6 @@ def lasso_filter(lasso, points, inside = True):
 		else:
 			line_outside.append(points[i].tolist())
 
-
 	if inside:
 		return line_inside
 	else:
@@ -982,19 +988,22 @@ def lasso_filter(lasso, points, inside = True):
 
 
 
-def lasso_lines(lasso, inside):
+def lasso_lines(lasso, inside=True):
 	
 	lines_to_remove = []
 
-	for i in range(len(cls())):
-		new_line = lasso_filter(lasso, getp(cl(i), 'xydata'), inside)
+	for i in range(len(cla())):
+		new_line = lasso_filter(lasso, getp(ca(i), 'xydata'), inside)
 		x, y = hsplit(array(new_line), 2)
+
 		if len(x) == 0:
 			lines_to_remove.insert(0, i)
-		setp(cl(i), 'data', [x, y])
+
+		setp(ca(i), 'data', [x, y])
 
 	for i in lines_to_remove:
 		cA().lines.pop(i)
+
 
 
 ################################################################################

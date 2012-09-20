@@ -1014,11 +1014,16 @@ def lasso_lines(lasso, inside=True):
 #                                                                              #
 ################################################################################
 
+
+key_words = {
+	"figure" : ['alpha', 'animated','edgecolor','facecolor','figheight','figwidth','frameon','label','visible','zorder'],
+	"axes" : ['adjustable', 'alpha', 'anchor', 'animated', 'aspect', 'autoscale_on', 'axis_bgcolor', 'axisbelow', 'frame_on', 'label', 'legend', 'title', 'visible', 'xbound', 'xlabel', 'xscale', 'ybound', 'ylabel', 'yscale', 'zorder'],
+	"lines" : ['alpha', 'animated', 'antialiased', 'color', 'dash_capstyle', 'dash_joinstyle', 'drawstyle', 'label', 'linestyle', 'linewidth', 'marker', 'markeredgecolor', 'markeredgewidth', 'markerfacecolor', 'markersize', 'solid_capstyle', 'solid_joinstyle', 'visible', 'zorder'],
+	"texts" : ['alpha', 'animated', 'color', 'family', 'horizontalalignment', 'label', 'position', 'rotation', 'size', 'stretch', 'style', 'text', 'variant', 'verticalalignment', 'visible', 'weight', 'zorder']
+}
+
+
 def saveJSONgraph(file_name = None):
-	"""
-	Save the graph in JSON format
-	make a bundle of all graph's properties.
-	"""
 
 	if file_name == None:
 		print("Filename needed")
@@ -1030,16 +1035,8 @@ def saveJSONgraph(file_name = None):
 	# First, save figure parameters coming from gcf()
 	bundle['figure'] = {} # place to save figure's properties
 
-	bundle['figure']['alpha']       = getp(gcf(), 'alpha')
-	bundle['figure']['animated']    = getp(gcf(), 'animated')
-	bundle['figure']['edgecolor']   = getp(gcf(), 'edgecolor')
-	bundle['figure']['facecolor']   = getp(gcf(), 'facecolor')
-	# bundle['figure']['figheight']   = getp(gcf(), 'figheight')
-	# bundle['figure']['figwidth']    = getp(gcf(), 'figwidth')
-	bundle['figure']['frameon']     = getp(gcf(), 'frameon')
-	bundle['figure']['label']       = getp(gcf(), 'label')
-	bundle['figure']['visible']     = getp(gcf(), 'visible')
-	bundle['figure']['zorder']      = getp(gcf(), 'zorder')
+	for i in key_words["figure"] :
+		bundle["figure"][i] = getp(gcf(), i)
 
 	# Now, save axes.
 	# Axes composed with properties with lines (data) and texts (lables).
@@ -1047,85 +1044,32 @@ def saveJSONgraph(file_name = None):
 	bundle['axes'] = [] # list of axes
 
 	for current_axis in gcf().axes:
-
 		# First of all, pack the general properties of the axes.
 		bundle['axes'].append({})
-
-		bundle['axes'][-1]['adjustable']     = getp(current_axis, 'adjustable')
-		bundle['axes'][-1]['alpha']          = getp(current_axis, 'alpha')
-		bundle['axes'][-1]['anchor']         = getp(current_axis, 'anchor')
-		bundle['axes'][-1]['animated']       = getp(current_axis, 'animated')
-		bundle['axes'][-1]['aspect']         = getp(current_axis, 'aspect')
-		bundle['axes'][-1]['autoscale_on']   = getp(current_axis, 'autoscale_on')
-		bundle['axes'][-1]['axis_bgcolor']   = getp(current_axis, 'axis_bgcolor')
-		bundle['axes'][-1]['axisbelow']      = getp(current_axis, 'axisbelow')
-		bundle['axes'][-1]['frame_on']       = getp(current_axis, 'frame_on')
-		bundle['axes'][-1]['label']          = getp(current_axis, 'label')
-		bundle['axes'][-1]['legend']         = getp(current_axis, 'legend')
-		bundle['axes'][-1]['position']       = [current_axis._position._get_x0(), current_axis._position._get_y0(), current_axis._position._get_width(), current_axis._position._get_height()]
-		bundle['axes'][-1]['title']          = getp(current_axis, 'title')
-		bundle['axes'][-1]['visible']        = getp(current_axis, 'visible')
-		bundle['axes'][-1]['xbound']         = getp(current_axis, 'xbound')
-		bundle['axes'][-1]['xlabel']         = getp(current_axis, 'xlabel')
-		bundle['axes'][-1]['xscale']         = getp(current_axis, 'xscale')
-		bundle['axes'][-1]['ybound']         = getp(current_axis, 'ybound')
-		bundle['axes'][-1]['ylabel']         = getp(current_axis, 'ylabel')
-		bundle['axes'][-1]['yscale']         = getp(current_axis, 'yscale')
-		bundle['axes'][-1]['zorder']         = getp(current_axis, 'zorder')
+		
+		for i in key_words["axes"] :
+			bundle['axes'][-1][i] = getp(current_axis, i)
+		bundle['axes'][-1]['position'] = [current_axis._position._get_x0(), current_axis._position._get_y0(), current_axis._position._get_width(), current_axis._position._get_height()]
 
 		# Now, pack the line.
 		bundle['axes'][-1]['lines'] = []
 
 		for current_line in current_axis.lines:
-			
 			bundle['axes'][-1]['lines'].append({})
 
-			bundle['axes'][-1]['lines'][-1]['alpha']           = getp(current_line, 'alpha')
-			bundle['axes'][-1]['lines'][-1]['animated']        = getp(current_line, 'animated')
-			bundle['axes'][-1]['lines'][-1]['antialiased']     = getp(current_line, 'antialiased')
-			bundle['axes'][-1]['lines'][-1]['color']           = getp(current_line, 'color')
-			bundle['axes'][-1]['lines'][-1]['dash_capstyle']   = getp(current_line, 'dash_capstyle')
-			bundle['axes'][-1]['lines'][-1]['dash_joinstyle']  = getp(current_line, 'dash_joinstyle')
-			bundle['axes'][-1]['lines'][-1]['drawstyle']       = getp(current_line, 'drawstyle')
-			bundle['axes'][-1]['lines'][-1]['label']           = getp(current_line, 'label')
-			bundle['axes'][-1]['lines'][-1]['linestyle']       = getp(current_line, 'linestyle')
-			bundle['axes'][-1]['lines'][-1]['linewidth']       = getp(current_line, 'linewidth')
-			bundle['axes'][-1]['lines'][-1]['marker']          = getp(current_line, 'marker')
-			bundle['axes'][-1]['lines'][-1]['markeredgecolor'] = getp(current_line, 'markeredgecolor')
-			bundle['axes'][-1]['lines'][-1]['markeredgewidth'] = getp(current_line, 'markeredgewidth')
-			bundle['axes'][-1]['lines'][-1]['markerfacecolor'] = getp(current_line, 'markerfacecolor')
-			bundle['axes'][-1]['lines'][-1]['markersize']      = getp(current_line, 'markersize')
-			bundle['axes'][-1]['lines'][-1]['solid_capstyle']  = getp(current_line, 'solid_capstyle')
-			bundle['axes'][-1]['lines'][-1]['solid_joinstyle'] = getp(current_line, 'solid_joinstyle')
-			bundle['axes'][-1]['lines'][-1]['visible']         = getp(current_line, 'visible')
-			bundle['axes'][-1]['lines'][-1]['xdata']           = getp(current_line, 'xdata').tolist()
-			bundle['axes'][-1]['lines'][-1]['ydata']           = getp(current_line, 'ydata').tolist()
-			bundle['axes'][-1]['lines'][-1]['zorder']          = getp(current_line, 'zorder')
+			for j in key_words["lines"] :
+				bundle['axes'][-1]['lines'][-1][j] = getp(current_line, j)
+			bundle['axes'][-1]['lines'][-1]['xdata'] = getp(current_line, 'xdata').tolist()
+			bundle['axes'][-1]['lines'][-1]['ydata'] = getp(current_line, 'ydata').tolist()
 
 		# Then, pack the texts
 		bundle['axes'][-1]['texts'] = []
 
 		for current_text in current_axis.texts:
-			
 			bundle['axes'][-1]['texts'].append({})
-
-			bundle['axes'][-1]['texts'][-1]['alpha']               = getp(current_text, 'alpha')
-			bundle['axes'][-1]['texts'][-1]['animated']            = getp(current_text, 'animated')
-			bundle['axes'][-1]['texts'][-1]['color']               = getp(current_text, 'color')
-			bundle['axes'][-1]['texts'][-1]['family']              = getp(current_text, 'family')
-			bundle['axes'][-1]['texts'][-1]['horizontalalignment'] = getp(current_text, 'horizontalalignment')
-			bundle['axes'][-1]['texts'][-1]['label']               = getp(current_text, 'label')
-			bundle['axes'][-1]['texts'][-1]['position']            = getp(current_text, 'position')
-			bundle['axes'][-1]['texts'][-1]['rotation']            = getp(current_text, 'rotation')
-			bundle['axes'][-1]['texts'][-1]['size']                = getp(current_text, 'size')
-			bundle['axes'][-1]['texts'][-1]['stretch']             = getp(current_text, 'stretch')
-			bundle['axes'][-1]['texts'][-1]['style']               = getp(current_text, 'style')
-			bundle['axes'][-1]['texts'][-1]['text']                = getp(current_text, 'text')
-			bundle['axes'][-1]['texts'][-1]['variant']             = getp(current_text, 'variant')
-			bundle['axes'][-1]['texts'][-1]['verticalalignment']   = getp(current_text, 'verticalalignment')
-			bundle['axes'][-1]['texts'][-1]['visible']             = getp(current_text, 'visible')
-			bundle['axes'][-1]['texts'][-1]['weight']              = getp(current_text, 'weight')
-			bundle['axes'][-1]['texts'][-1]['zorder']              = getp(current_text, 'zorder')
+			
+			for j in key_words["texts"] :
+				bundle['axes'][-1]['texts'][-1][j] = getp(current_text, j)
 
 	target_file = file(file_name, "w")
 	sj.dump(bundle, target_file)

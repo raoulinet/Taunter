@@ -15,11 +15,12 @@ def to_mercator(x, y, z):
 
 
 
-def tsv2rec(fname):
+def tsv2rec(fname, skiprows=0):
     """
     Overload of csv2rec function
     """
-    return csv2rec(fname, delimiter=" ")
+    return csv2rec(fname, delimiter=" ", skiprows=skiprows)
+
 
 
 def smooth(t, begin, end):

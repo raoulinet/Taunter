@@ -142,154 +142,165 @@ curve_marker = {
 #                                                                              #
 ################################################################################
 
+
+
 def cf():
-	"""
-	cf
-	"""
 
 	return gcf()
 
 
 
 def cAs():
-	"""
-	ca
-	"""
 
 	return getp(cf(), 'axes')
 
 
 
 def cA(num = -1):
-	"""
-	cA
-	"""
 
 	return getp(cf(), 'axes')[num]
 
 
 
 def ci(image = -1):
-	"""
-	ci
-	"""
 
 	return gci()
-	return gcf().image[-1]
+
+
+
+def clv():
+
+	to_return = []
+
+	for i in cA().lines:
+		if getp(i, 'visible'):
+			to_return.append(i)
+
+	return to_return
+
+
+
+def cls():
+
+	return clv()
+
+
+
+def cv(line_number = -1):
+
+	return clv()[line_number]
 
 
 
 def cl(line_number = -1):
-	"""
-	cl
-	"""
 
-	return gca().lines[line_number]
+	return cv(line_number)
 
 
 
-def cls(lower = 0, higher = None):
-	"""
-	cls
-	"""
+def clh():
 
-	if higher == None:
-		higher = len(gca().lines)
+	to_return = []
 
-	return gca().lines[lower : higher]
+	for i in cA().lines:
+		if getp(i, 'visible') == False:
+			to_return.append(i)
+
+	return to_return
+
+
+
+def ch(line_number = -1):
+
+	return clh()[line_number]
+
+
+
+def cla():
+
+	return cA().lines
+
+
+
+def ca(line_number = -1):
+
+	return cla()[line_number]
+
+
+
+def hide_or_not(i):
+
+	if getp(i, 'visible') == True:
+		return ' '
+
+	else:
+		return 'H'
 
 
 
 def get_info():
-	"""
-	get_info
-	"""
 
 	n = 0
 
-	for i in cls():
-		print("# " + str(n)
-		+ "\tma: " + getp(i, 'marker')
+	for i in cla():
+		print(hide_or_not(i) + " " + str(n)
+		+ "\tlen: " + str(len(getp(i, 'xdata')))
+		+ "\tmarker: " + getp(i, 'marker')
 		+ "\tls: " + getp(i, 'ls')
-		+ "\tc: " + getp(i, 'c')
-		+ "\tl: " + str(len(getp(i, 'xdata')))
-		+ "\tv: " + str(getp(i, 'visible')))
+		+ "\tc: " + getp(i, 'c'))
 		n += 1
 
 
 
 def ct(text_number = -1):
-	"""
-	ct
-	"""
 
 	return gca().texts[text_number]
 
 
 
 def ct(text_number = -1):
-	"""
-	ct
-	"""
 
 	return gca().texts
 
 
 
 def cx():
-	"""
-	cx
-	"""
 	
 	return cA().xaxis
 
 
 
 def cy():
-	"""
-	cy
-	"""
 	
 	return cA().yaxis
 
 
 
 def cT():
-	"""
-	cT
-	"""
 	
 	return ca().title
 
 
 
 def cPs():
-	"""
-	"""
 
 	return filter(lambda i: type(i) == Polygon, getp(ca(), 'children'))
 
 
 
 def cP(num = -1):
-	"""
-	"""
 
 	return filter(lambda i: type(i) == Polygon, getp(ca(), 'children'))[num]
 
 
 
 def cEs():
-	"""
-	"""
 
 	return filter(lambda i: type(i) == Ellipse, getp(ca(), 'children'))
 
 
 
 def cE(num = -1):
-	"""
-	"""
 
 	return filter(lambda i: type(i) == Ellipse, getp(ca(), 'children'))[num]
 

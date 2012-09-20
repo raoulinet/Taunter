@@ -1320,84 +1320,113 @@ def openNanoQtgraph_polar(bundle, reversed = False, deg_rad = 1):
 
 
 
-def openGraph2(fname, reversed = False):
+def openGraph(fname, reversed = False, tight=0):
 
-	if fname[-7:-1] == ".pyplo":
-	
-		try:
-			data = sj.load(file(fname, "r"))
-		except:
-			print("Warning: fail to open the JSON graph")
-			return
-		
-		try:
-			data.has_key('axes')
-		except:
-			print("does not contains axes...")
-			return
-
-		try:
-			openJSONgraph(data)
-		except:
-			print("Warning: fail to process the JSON graph")
-			return
-
-	elif fname[-5:-1] == ".plo":
-
-		try:
-			data = sj.load(file(fname, "r"))
-			try:
-				openNanoQtgraph(data, reversed = reversed)
-			except:
-				print("Warning: ouch @ processing!")
-				return
-		except:
-			print("Warning: ouch @ opening!")
-			return
+	if fname == "last":
+		_l = os.listdir(".")
+		_l.sort()
+		fname = [_l.pop()]
+		print(fname)
 	else:
-		print("type not known")
-		return
+		_l = glob.glob(fname)
+		print(_l)
+
+		if len(_l) < 1:
+			print("don't find occurence")
+			return
+
+		if len(_l) > 1:
+			print("many occurences")
+			print("would you like to open everything?")
+			print("(y/n)")
+
+			if raw_input() != "y":
+			    return
+
+		fname = _l
+
+	for i in fname:
+		print(i)
+
+		try:
+			print("Open the file")
+			f = file(i, "r")
+		except:
+			print("Warning: Fail to open the file")
+			return
+
+		try:
+			print("Deseriliaze the JSON string")
+			data = sj.load(f)
+		except:
+			print("Warning: Fail to deseriliaze the JSON string")
+			return
+
+		_f = figure ()
+
+		try:
+			print("Open the graph in Python format")
+			openJSONgraph(data)
+
+			if tight == 1:
+				axis("tight")
+		except:
+			print("Warning: Fail to open the graph in Python format")
+
+		try:
+			print("Open the graph in NanoQt format!")
+			openNanoQtgraph(data, reversed = reversed)
+			if tight == 1:
+				axis("tight")
+		except:
+			print("Warning: Fail to open the graph in NanoQt format!")
 
 
-def openGraph(fname, reversed = False):
+
+def openPolar(fname, reversed = False, angle = 2 * pi):
+
+	if fname == "last":
+		_l = os.listdir(".")
+		_l.sort()
+		fname = _l.pop()
+		print(fname)
+	else:
+		_l = glob.glob(fname)
+
+		if (len(_l) > 1):
+			print("too much occurence")
+			print(_l)
+			return
+
+		if len(_l) < 1:
+			print("don't find occurence")
+			return
+
+		fname = _l.pop()
+	print(fname)
 
 	try:
+		print("Open the file")
 		f = file(fname, "r")
 	except:
 		print("Warning: Fail to open the file")
 		return
 
 	try:
+		print("Deseriliaze the JSON string")
 		data = sj.load(f)
 	except:
-		print("Warning: Fail to deseriliaze the JSON string")
+		print("Warning: Fail to open Polar plot")
 		return
 
-	figure ()
+	figure()
 
 	try:
-		openJSONgraph(data)
+		print("Processing")
+		# openNanoQtgraph_polar(data, reversed = reversed, deg_rad = eval(angle))
+		openNanoQtgraph_polar(data, reversed, angle)
 	except:
-		print("Warning: Fail to open the graph in Python format")
-
-	try:
-		openNanoQtgraph(data, reversed = reversed)
-	except:
-		print("Warning: Fail to open the graph in NanoQt format!")
-
-
-
-def openPolar(fname, reversed = False, angle = 2 * math.pi):
-
-	try:
-		data = sj.load(file(fname, "r"))
-		figure()
-		try:
-			openNanoQtgraph_polar(data, reversed = reversed, deg_rad = eval(angle))
-		except:
-			print("Warning: ouch @ processing!")
-	except:
-		print("Warning: Fail to open Polar plot")
+		print("Warning: ouch @ processing!")
 
 
 
@@ -1409,26 +1438,28 @@ class UiImport(eta.HasTraits):
     reversed = eta.Bool()
     open_graph = eta.Button("Open graph")
     open_polar = eta.Button("Open polar")
-   
  
     def __init__(self, fname = ""):
-        self.fname = _ip.magic("pwd ")
-        self.directory = _ip.magic("pwd ")
+
+        self.fname = os.getcwdu()
+        self.directory = os.getcwdu()
         self.current_directory = self.directory
 
-
     def _open_graph_fired(self):
-        openGraph(self.fname, self.reversed)
 
+        openGraph(self.fname, self.reversed)
 
     def _open_polar_fired(self):
 
         try:
             self.data = sj.load(file(self.fname, "r"))
+
             try:
                 openNanoQtgraph_polar(self.data, reversed = self.reversed, deg_rad = eval(self.angle))
+
             except:
                 print("Warning: ouch @ processing!")
+
         except:
             print("Warning: ouch @ opening!")
 
@@ -1436,15 +1467,14 @@ class UiImport(eta.HasTraits):
 
     open_polar = etum.Action(name = 'open polar', action = '_open_polar_fired')
 
-
     view = etua.View(
         etua.Item('angle'),
         etua.Item('reversed'),
         etua.Item('fname', editor=etua.FileEditor(auto_set = True), style = "custom"),
         resizable = True,
         scrollable = True,
-	title= "UiImport",
-	toolbar = etum.ToolBar(open_graph, open_polar),
+		title= "UiImport",
+		toolbar = etum.ToolBar(open_graph, open_polar),
         height = 720,
         width = 800
     )
@@ -1460,40 +1490,41 @@ def uiimport(fname = ""):
 
 class UiBrowser(eta.HasTraits):
 
-    directory = eta.Directory()
-    current_directory = eta.Str("")
-    cd = eta.Button("Directory")
-    plot_to_png = eta.Button(".plot to .png")
-   
- 
-    def __init__(self):
-        self.directory = _ip.magic("pwd ")
-        self.current_directory = self.directory
+	directory = eta.Directory()
+	current_directory = eta.Str("")
+	cd = eta.Button("Directory")
+	plot_to_png = eta.Button(".plot to .png")
 
+	def __init__(self):
 
-    def _cd_fired(self):
-	_ip.magic("cd " + self.directory)
-        self.current_directory = _ip.magic("pwd ")
+		self.directory = os.getcwdu()
+		self.current_directory = self.directory
 
-    def _plot_to_png_fired(self):
-        self.current_directory = _ip.magic("pwd ")
-    	print("Convert .plot to .png in " + _ip.magic("pwd"))
-	process_plot_to_png()
-	print("Convert finished")
+	def _cd_fired(self):
 
-    change_directory = etum.Action(name = 'Directory', action = '_cd_fired')
-    convert_plot_png = etum.Action(name = '.plot to .png', action = '_plot_to_png_fired')
+		_ip.magic("cd " + self.directory)
+		self.current_directory = os.getcwdu() # _ip.magic("os.getcwdu() ")
 
-    view = etua.View(
-        etua.Item('current_directory'),
-        etua.Item('directory', editor=etua.DirectoryEditor(), style = "custom"),
-        resizable = True,
-        scrollable = True,
-	title= "Browser",
-	toolbar = etum.ToolBar(change_directory, convert_plot_png),
-        height = 640,
-        width = 800
-    )
+	def _plot_to_png_fired(self):
+
+		self.current_directory = os.getcwdu() # _ip.magic("pwd ")
+		print("Convert .plot to .png in " + os.getcwdu()) # _ip.magic("pwd"))
+		process_plot_to_png()
+		print("Convert finished")
+
+	change_directory = etum.Action(name = 'Directory', action = '_cd_fired')
+	convert_plot_png = etum.Action(name = '.plot to .png', action = '_plot_to_png_fired')
+
+	view = etua.View(
+		etua.Item('current_directory'),
+		etua.Item('directory', editor=etua.DirectoryEditor(), style = "custom"),
+		resizable = True,
+		scrollable = True,
+		title= "Browser",
+		toolbar = etum.ToolBar(change_directory, convert_plot_png),
+		height = 640,
+		width = 800
+	)
 
 
 
@@ -1501,3 +1532,29 @@ def browser():
 
     wxbrowser = UiBrowser()
     wxbrowser.configure_traits()
+
+
+
+class Inbox(eta.HasTraits):
+
+    inbox = eta.List
+   
+    def __init__(self, inbox):
+
+		self.inbox = [str(msg) for msg in inbox]
+
+    view = etua.View(
+        etua.Item('inbox', style='custom'),
+        resizable = True,
+        scrollable = True,
+		title= "Inbox",
+        height = 640,
+        width = 800
+    )
+
+
+
+def inbox(inb):
+
+    wxinbox = Inbox(inb)
+    wxinbox.configure_traits()

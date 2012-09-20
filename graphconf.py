@@ -9,15 +9,20 @@ import math
 import pprint
 import simplejson as sj
 
+
+
 def import_emm_module():
-	import enthought.mayavi.mlab as emm
 	import mayavi.mlab as emm
+
+
 
 ################################################################################
 #                                                                              #
 # Dictionnaries                                                                #
 #                                                                              #
 ################################################################################
+
+
 
 color_corr = {
 	"b": "blue",

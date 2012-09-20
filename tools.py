@@ -37,6 +37,7 @@ def smooth(t, begin, end):
 	return t
 
 
+
 def build_waveform(waveform_description, awg_samplingrate = 24):
 	"""
 	waveform = [
@@ -55,15 +56,17 @@ def build_waveform(waveform_description, awg_samplingrate = 24):
 		phase = i["phase"]
 		t = arange(0, length, 1/float(awg_samplingrate))
 		env = smooth(t, 0, rise) * (1 - smooth(t, length - fall, length)) 
-		tmp_waveform = -512 + floor(1024. * env * amplitude * sin(2 * pi * (phase/360. + frequency * t)))
+		# tmp_waveform = -512 + floor(1024. * env * amplitude * sin(2 * pi * (phase/360. + frequency * t)))
+		tmp_waveform = 0.5 + floor(1024. * env * amplitude * sin(2 * pi * (phase + frequency * t)))/1024
 		waveform = concatenate((waveform, tmp_waveform));
 	return waveform;
+
 
 
 def build_signal(waveform_description, awg_samplingrate = 24):
 	"""
 	waveform = [
-	{"amplitude": 1, "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0, "fall": 0}
+	{"amplitude": 1, "start", "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0, "fall": 0}
 	]
 	"""
 
@@ -78,8 +81,112 @@ def build_signal(waveform_description, awg_samplingrate = 24):
 
 		t = arange(0, length, 1/float(awg_samplingrate))
 		env = smooth(t, 0, rise) * (1 - smooth(t, length - fall, length)) 
-		tmp_waveform = env * amplitude * sin(2 * pi * (phase/360. + frequency * t))
+		tmp_waveform = env * amplitude * sin(2 * pi * (phase + frequency * t))
+		waveform = concatenate((waveform, tmp_waveform))
+	return waveform;
+
+
+
+def build_custom_signal(waveform_description, awg_samplingrate = 24):
+	"""
+	waveform = [
+	{"amplitude": 1, "start", "length": 3.2, "rise": 0.2, "frequency": 3.4, "phase":0, "fall": 0}
+	]
+	"""
+
+	total_length = waveform_description[-1]["start"] + waveform_description[-1]["length"]
+
+	waveform = []
+	tmp_waveform = []
+	for i in waveform_description:
+		length = i["length"]
+		start = i["start"]
+		rise = i["rise"]
+		fall = i["fall"]
+		amplitude = i["amplitude"]
+		frequency = i["frequency"]
+		phase = i["phase"]
+
+		t = arange(waveform_description[0]["start"], total_length, 1/float(awg_samplingrate))
+		env = smooth(t, start, start + rise) * (1 - smooth(t, start + length - fall, start + length)) 
+		tmp_waveform.append(env * amplitude * sin(2 * pi * (phase + frequency * t)))
+
+	waveform = 0.*arange(waveform_description[0]["start"], total_length, 1/float(awg_samplingrate))
+	for i in range(len(tmp_waveform)):
+		waveform = waveform + tmp_waveform[i]
+
+	return waveform;
+
+
+
+def build_enveloppe(waveform_description, awg_samplingrate = 24):
+	"""
+	waveform = [
+	{"amplitude": 1, "length": 3.2, "rise": 0.2, "fall": 0}
+	]
+	"""
+
+	waveform = []
+	for i in waveform_description:
+		length = i["length"]
+		rise = i["rise"]
+		fall = i["fall"]
+		amplitude = i["amplitude"]
+
+		t = arange(0, length, 1/float(awg_samplingrate))
+		env = smooth(t, 0, rise) * (1 - smooth(t, length - fall, length)) 
+		tmp_waveform = env * amplitude 
 		waveform = concatenate((waveform, tmp_waveform));
+	return waveform;
+
+
+
+def build_custom_enveloppe(waveform_description, awg_samplingrate = 24):
+	"""
+	waveform = [
+	{"amplitude": 1, "start": 0, "length": 3.2, "rise": 0.2, "fall": 0}
+	]
+	"""
+
+	total_length = waveform_description[-1]["start"] + waveform_description[-1]["length"]
+
+	waveform = zeros((total_length - waveform_description[0]["start"])*awg_samplingrate)
+	tmp_waveform = []
+	for i in waveform_description:
+		length = i["length"]
+		start = i["start"]
+		rise = i["rise"]
+		fall = i["fall"]
+		amplitude = i["amplitude"]
+
+		t = arange(waveform_description[0]["start"], total_length, 1/float(awg_samplingrate))
+		env = smooth(t, start, start + rise) * (1 - smooth(t, start + length - fall, start + length)) 
+		tmp_waveform.append(env * amplitude)
+
+	for i in range(len(tmp_waveform)):
+		waveform = waveform + tmp_waveform[i]
+
+	return waveform;
+
+
+
+def build_HDC(waveform_description, awg_samplingrate = 24, currentHDC = 0):
+	"""
+	waveform = [
+	{"amplitude": 1, "length": 3.2}
+	]
+	"""
+
+	waveform = []
+	for i in waveform_description:
+		length = i["length"]
+		amplitude = i["amplitude"]
+
+		t = arange(0, length, 1/float(awg_samplingrate))
+		env = smooth(t, 0, length)
+		tmp_waveform = env * amplitude + currentHDC
+		waveform = concatenate((waveform, tmp_waveform));
+		currentHDC = waveform[-1]
 	return waveform;
 
 

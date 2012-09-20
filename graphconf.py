@@ -1078,24 +1078,16 @@ def saveJSONgraph(file_name = None):
 
 
 def openJSONgraph(bundle = None):
-	"""
-	Open the graph from JSON format
-	make a bundle of all graph's properties.
-	"""
 
-	# First, set figure parameters
-	
 	try:
-		setp(gcf(), 'alpha'    , bundle['figure']['alpha']    , 
-			    'animated' , bundle['figure']['animated'] , 
+		setp(gcf(), 'alpha', bundle['figure']['alpha'], 
+			    'animated', bundle['figure']['animated'], 
 			    'edgecolor', bundle['figure']['edgecolor'], 
 			    'facecolor', bundle['figure']['facecolor'], 
-			    # 'figheight', bundle['figure']['figheight'], 
-			    # 'figwidth' , bundle['figure']['figwidth'] , 
-			    'frameon'  , bundle['figure']['frameon']  , 
-			    'label'    , bundle['figure']['label']    , 
-			    'visible'  , bundle['figure']['visible']  , 
-			    'zorder'   , bundle['figure']['zorder']   ) 
+			    'frameon', bundle['figure']['frameon'], 
+			    'label', bundle['figure']['label'], 
+			    'visible', bundle['figure']['visible'], 
+			    'zorder', bundle['figure']['zorder']) 
 	except:
 		print("Warning: fail to set figure properties")
 
@@ -1104,16 +1096,14 @@ def openJSONgraph(bundle = None):
 	# Need a loop to scan all of the stuffs in all of the axes.
 
 	for current_axis in bundle['axes']:
-
 		for current_line in current_axis['lines']:
-			
 			try:
 				plot(current_line['xdata'], current_line['ydata'])	
 			except:
 				print("Warning: fail to plot data")
 
 			try:
-				setp(gca().lines[-1], 'alpha'          , current_line['alpha']          ,
+				setp(gca().lines[-1], 'alpha'  , current_line['alpha']          ,
 						      'animated'       , current_line['animated']       ,
 						      'antialiased'    , current_line['antialiased']    ,
 						      'color'          , current_line['color']          ,
@@ -1135,8 +1125,7 @@ def openJSONgraph(bundle = None):
 			except:
 				print("Warning: fail to set line properties")
 
-		for current_text in current_axis['texts']:
-		
+		for current_text in current_axis['texts']:		
 			try:	
 				text(current_text['position'][0], current_text['position'][1], current_text['text'])
 			except:
@@ -1198,21 +1187,26 @@ def openNanoQtgraph(bundle, reversed = False):
 	debug_string = ""
 
 	try :
-		setp(cA(), 'title', bundle['title']) 
+		print('Set the title')
+		title(bundle['title'])
 	except:
 		print('Warning: Fail to set the title: ' + bundle['title'])
 
 	try :
-		setp(cA(), 'xlabel', bundle['x_label'])
+		print('Set the x label')
+		xlabel(bundle['x_label'])
 	except:
 		print('Warning: Fail to set the x label: ' + bundle['x_label'])
 
 	try :
-		setp(cA(), 'ylabel', bundle['x_label'])
+		print('Set the y label')
+		ylabel(bundle['x_label'])
 	except:
 		print('Warning: Fail to set the y label: ' + bundle['y_label'])
 
 	try: 
+		print('Set the xscale')
+
 		if bundle['logscale_x']:
 			setp(cA(), 'xscale', 'log')
 		else:
@@ -1221,6 +1215,7 @@ def openNanoQtgraph(bundle, reversed = False):
 		print('Warning: fail to set the xscale')
 
 	try: 
+		print('Set the yscale')
 		if bundle['logscale_y']:
 			setp(cA(), 'yscale', 'log')
 		else:
@@ -1228,59 +1223,75 @@ def openNanoQtgraph(bundle, reversed = False):
 	except: 
 		print('Warning: Fail to set the yscale')
 
-
-	# if bundle.has_key("curves"):
 	try:
+		print("Plot lines...")
 
 		for n in range(len(bundle["curves"])):
-			
 			if bundle["curves"][n] != None:
 				
 				curvex, curvey = hsplit(array(bundle["curves"][n]["data"]), 2)
 				plot(curvex, curvey)
 
 				try:
+					print("Set color")
+			
 					if str(bundle["curves"][n]["options"]["pen_color"]).startswith("0x"):
 						formatted_color = '#' + str(bundle["curves"][n]["options"]["pen_color"])[2:]
 					else:
 						formatted_color = str(bundle["curves"][n]["options"]["pen_color"])
-						setp(cl(), 'c', formatted_color)
+						setp(ca(), 'c', formatted_color)
 				except:
-					formatted_color = getp(cl(), 'c')
+					formatted_color = getp(ca(), 'c')
 					print("Warning: Fail to set color")
 
-				setp(cl(), 'mec', formatted_color)
-				setp(cl(), 'mfc', formatted_color)
+				setp(ca(), 'mec', formatted_color)
+				setp(ca(), 'mfc', formatted_color)
 
 				try:
+					print("Set line style")
 					pen_style = bundle["curves"][n]["options"]["pen_style"]
 					line_style = curve_line[pen_style]
-					setp(cl(), 'ls', line_style)
+					setp(ca(), 'ls', line_style)
 				except:
-					setp(cl(), 'ls', '')
+					setp(ca(), 'ls', '')
 					print("Warning: Fail to set line style")
 
 				try:
-					setp(cl(), 'marker', curve_marker[bundle["curves"][n]["options"]["symbol"]])
+					print("Set marker")
+					setp(ca(), 'marker', curve_marker[bundle["curves"][n]["options"]["symbol"]])
 				except:
-					setp(cl(), 'marker', 's')
+					setp(ca(), 'marker', 's')
 					print("Warning: Fail to set marker")
 
 				try:
-					setp(cl(), 'markersize', bundle["curves"][n]["options"]["symbol_size"])
+					print("Set markersize")
+					setp(ca(), 'markersize', bundle["curves"][n]["options"]["symbol_size"])
+
 				except:
-					setp(cl(), 'markersize', 1)
+					setp(ca(), 'markersize', 1)
 					print("Warning: Fail to set markersize")
+
+				try:
+					print("Set axis")
+					axis((bundle["x_min"], bundle["x_max"], bundle["y_min"], bundle["y_max"]))
+
+				except:
+					print("Warning: Fail to set axis")
+					
 	except:
 		print("Warning: Fail to plot lines...")
 
 	try:
+		print("Draw array...")
 		a = array(bundle["array"]["data"]) 
 		x, y = meshgrid(linspace(bundle["x_min"], bundle["x_max"], len(a)), linspace(bundle["y_min"], bundle["y_max"], len(a[0])))
+
 		if reversed:
 			pcolormesh(x, y, a.max() - a)
+
 		else:
 			pcolormesh(x, y, a)
+
 	except:
 		print("Warning: Fail to draw array...")
 
@@ -1289,16 +1300,21 @@ def openNanoQtgraph(bundle, reversed = False):
 
 
 def openNanoQtgraph_polar(bundle, reversed = False, deg_rad = 1):
+
+	print("openNanoQtgraph_polar")
     
 	polar()
 
 	try:
+		print("Draw array...")
 		a = array(bundle["array"]["data"]) 
 		x, y = meshgrid(linspace(bundle["x_min"], bundle["x_max"], len(a)), linspace(bundle["y_min"], bundle["y_max"], len(a[0])))
+
 		if reversed:
 			pcolormesh(deg_rad*y, x, a.max() - a)
 		else:
 			pcolormesh(deg_rad*y, x, a)
+
 	except:
 		print("Warning: Fail to draw array...")
 

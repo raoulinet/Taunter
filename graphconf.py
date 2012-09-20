@@ -761,82 +761,52 @@ def show_colormap():
 
 
 
-class graph:
-	"""
-	Overlaod of figure() + plot() function
-	a 2 in 1
-	graph(...) to open and plot
-	plot(...) to append a line in the graph
-	"""
+def graph(*args):
 	
-	def __init__(self, *args):
-		figure()
-		plot(*args)
+	_f = figure()
+	plot(*args)
+	return _f
 
 
 
 class imgraph:
-	"""
-	Overlaod of figure() + imshow() function
-	a 2 in 1
-	imgraph(...) to open and plot
-	imshow(...) to append a line in the graph
-	"""
 
 	def __init__(self, *args):
+
 		figure()
 		imshow(*args)
 
 
 
 class pgraph:
-	"""
-	Overlaod of figure() + pcolor() function
-	a 2 in 1
-	colorgraph(...) to open and plot
-	pcolormesh(...) to append a line in the graph
-	"""
 
 	def __init__(self, *args, **kwargs):
+
 		figure()
 		pcolormesh(*args, **kwargs)
 
 
-class contourgraph:
-	"""
-	Overlaod of figure() + contour() function
-	a 2 in 1
-	colorgraph(...) to open and plot
-	pcolormesh(...) to append a line in the graph
-	"""
 
-	def __init__(self, *args, **kwargs):
-		figure()
-		contour(*args, **kwargs)
+def contourgraph(*args, **kwargs):
+
+	f = figure()
+	contour(*args, **kwargs)
+	return f
 
 
-class contourfgraph:
-	"""
-	Overlaod of figure() + contour() function
-	a 2 in 1
-	colorgraph(...) to open and plot
-	pcolormesh(...) to append a line in the graph
-	"""
 
-	def __init__(self, *args, **kwargs):
-		figure()
-		contourf(*args, **kwargs)
+def contourfgraph(*args, **kwargs):
+
+	f = figure()
+	contourf(*args, **kwargs)
+	return f
+
 
 
 class polargraph:
-	"""
-	Overlaod of figure() + pcolor() function
-	a 2 in 1
-	colorgraph(...) to open and plot
-	pcolormesh(...) to append a line in the graph
-	"""
 
 	def __init__(self, *args, **kwargs):
+
 		figure()
 		polar()
 		pcolormesh(*args, **kwargs)
@@ -844,15 +814,111 @@ class polargraph:
 
 
 def savepdfpng(fname, dpi = 300):
-	for i in getp(cA(), 'children'):
-		setp(i, 'visible', False)
-	setp(ci(), 'True')
-	savefig(fname + '.png', dpi = dpi)
-	setp(ci(), 'False')
-	for i in getp(cA(), 'children'):
-		setp(i, 'visible', True)
-	savefig(fname + '.pdf')
 
+	print "save png"
+	setp(gci(), 'visible', True)
+	axis('off')
+	savefig(fname + '.png', dpi = dpi)
+	print "save pdf"
+	setp(gci(), 'visible', False)
+	axis('on')
+	savefig(fname + '.pdf', dpi = dpi)
+	setp(gci(), 'visible', True)
+	axis('on')
+	print "done"
+
+
+
+class getLasso:
+
+	def __init__(self):
+
+		self.xs = []
+		self.ys = []
+		self.cid = cf().canvas.mpl_connect('button_press_event', self._click)
+		self.kid = cf().canvas.mpl_connect('key_press_event', self._press)
+
+	def _click(self, event):
+
+		if event.inaxes != cA():
+			return
+
+		self.xs.append(event.xdata)
+		self.ys.append(event.ydata)
+
+		if len(self.xs) == 1:
+			cA().add_patch(Polygon(zip(self.xs, self.ys), True, alpha = 0.4))
+			draw()
+
+		if len(self.xs) > 1:
+			setp(cA().patches[-1], 'xy', zip(self.xs, self.ys))
+
+	def _press(self, event):
+
+		remove_last_patch()
+		pprint.pprint(zip(self.xs, self.ys))
+		cf().canvas.mpl_disconnect(self.cid)
+		cf().canvas.mpl_disconnect(self.kid)
+		draw()
+	
+	def stop(self):
+
+		cf().canvas.mpl_disconnect(self.cid)
+		cf().canvas.mpl_disconnect(self.kid)
+
+
+
+class getSquare:
+
+	def __init__(self):
+
+		self.x = []
+		self.y = []
+		self.a = None
+		self.b = None
+		self.c = None
+		self.d = None
+		self.first_click = True
+		self.cid = cf().canvas.mpl_connect('button_press_event', self._click)
+
+	def _click(self, event):
+
+		if event.inaxes != cA():
+			return
+
+		if self.first_click:
+			self.a = event.xdata
+			self.b = event.ydata
+			self.x.append(self.a)
+			self.y.append(self.b)
+			self.first_click = False
+			cA().add_patch(Polygon(zip(self.x, self.y), True, alpha = 0.4))
+			draw()
+		else:
+			self.c = event.xdata
+			self.d = event.ydata
+
+			self.x.append(self.c)
+			self.y.append(self.b)
+			self.x.append(self.c)
+			self.y.append(self.d)
+			self.x.append(self.a)
+			self.y.append(self.d)
+			self.x.append(self.a)
+			self.y.append(self.b)
+			
+			setp(cA().patches[-1], 'xy', zip(self.x, self.y))
+			setp(cA().patches[-1], 'xy', zip(self.x, self.y))
+			setp(cA().patches[-1], 'xy', zip(self.x, self.y))
+			setp(cA().patches[-1], 'xy', zip(self.x, self.y))
+			# remove_last_patch()
+			pprint.pprint(zip(self.x, self.y))
+			cf().canvas.mpl_disconnect(self.cid)
+			draw()
+	
+	def stop(self):
+
+		cf().canvas.mpl_disconnect(self.cid)
 
 
 

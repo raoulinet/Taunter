@@ -434,17 +434,18 @@ def get_index_list():
 
 def slice_graph(num = None):
 
-	source = gcf()
+	source = cA().lines
+	target = figure()
 
-	x, y = source.axes[-1].lines[num].get_data()
-	marker = source.axes[-1].lines[num].get_marker()
-	markersize = source.axes[-1].lines[num].get_markersize()
-	linestyle = source.axes[-1].lines[num].get_linestyle()
-	linewidth = source.axes[-1].lines[num].get_linewidth()
-	color = source.axes[-1].lines[num].get_color()
-	label = source.axes[-1].lines[num].get_label()
-	figure()
-	plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)
+	for i in num:
+		x, y = getp(source[i], 'data')
+		marker = getp(source[i], 'marker')
+		ms = getp(source[i], 'ms')
+		ls = getp(source[i], 'ls')
+		lw = getp(source[i], 'lw')
+		c = getp(source[i], 'c')
+		label = getp(source[i], 'label')
+		plot(x, y, marker=marker, markersize=ms, linestyle=ls, linewidth=lw, color=c, label=label)
 
 
 
@@ -461,101 +462,130 @@ def explode_graph(num = None):
 		color = source.axes[-1].lines[num].get_color()
 		label = source.axes[-1].lines[num].get_label()
 		figure()
+		title("curve: " + str(num) + ", visible: " + str(getp(source.axes[-1].lines[num], 'visible')))
 		plot(x, y, marker=marker, markersize=markersize, linestyle=linestyle, linewidth=linewidth, color=color, label=label)
 
 
 
 def copy_paste_graph(source_fig, drop_fig, xoffset = 0, xmul = 1, yoffset = 0, ymul = 1):
 
-    source = figure(source_fig)
-    drop = figure(drop_fig)
+	source = figure(source_fig)
+	to_process = clv()
+	drop = figure(drop_fig)
 
-    for i in source.axes[-1].lines:
-        x, y = getp(i, 'data')
-        marker = getp(i, 'marker')
-        ms = getp(i, 'ms')
-        mec = getp(i, 'mec')
-        mfc = getp(i, 'mfc')
-        ls = getp(i, 'ls')
-        lw = getp(i, 'lw')
-        c = getp(i, 'c')
-        label = getp(i, 'label')
-        figure(drop.number)
-        plot(xmul*array(x) + xoffset, ymul*array(y) + yoffset)
-        setp(cl(), 'marker', marker, 'ms', ms, 'mec', mec, 'mfc', mfc, 'ls', ls, 'lw', lw, 'c', c, 'label', label)
+	for i in to_process:
+		x, y = getp(i, 'data')
+		marker = getp(i, 'marker')
+		ms = getp(i, 'ms')
+		mec = getp(i, 'mec')
+		mfc = getp(i, 'mfc')
+		ls = getp(i, 'ls')
+		lw = getp(i, 'lw')
+		c = getp(i, 'c')
+		label = getp(i, 'label')
+		figure(drop.number)
+		plot(xmul*array(x) + xoffset, ymul*array(y) + yoffset)
+		setp(cv(), 'marker', marker, 'ms', ms, 'mec', mec, 'mfc', mfc, 'ls', ls, 'lw', lw, 'c', c, 'label', label)
 
 
 
 def get_norm_angle():
 
-    a = ginput()[0]
+	a = ginput(show_clicks=False)[0]
 
-    return {
-        "norm": sqrt(a[0]**2 + a[1]**2),
-        "angle_rad": arctan2(a[1], a[0]),
-        "angle_deg": arctan2(a[1], a[0])*180./pi
-    }
+	return {
+		"norm": sqrt(a[0]**2 + a[1]**2),
+		"angle_rad": arctan2(a[1], a[0]),
+		"angle_deg": arctan2(a[1], a[0])*180./pi
+	}
+
+
+
+def get_interval():
+
+	a = ginput(2, show_clicks=False)
+	dx = a[1][0] - a[0][0]
+	dy = a[1][1] - a[0][1]
+
+	return {
+		"interval x": dx,
+		"interval y": dy,
+		"interval r": sqrt(dx**2 + dy**2)
+	}
 
 
 
 def remove_first(layer = 0):
 
-	gca().lines.pop(layer)
-	draw()
+	setp(ca(layer), 'visible', False)
 
 
 
-def remove_last(layer = None):
+def remove_line(layer = None):
 
 	if layer == None:
-		cA().lines.pop()
+		layer = [-1]
+	
+	if type(layer) == int:
+		layer = [layer]
+
+	for i in layer:
+		setp(ca(i), 'visible', False)
+
+			
+
+def keep_line(layer2keep = -1):
+	
+	if type(layer2keep) == int:
+		layer2keep = [layer2keep]
+
+	for i in range(len(cla())):
+		if i in layer2keep:
+			continue
+		setp(ca(i), 'visible', False)
+
+	
+
+def remove_last(layer = None, axis = -1):
+
+	if layer == None:
+		setp(ca(-1), 'visible', False)
 	else:
-		cA().lines.pop(layer)
+		setp(ca(layer))
 	draw()
 
 
-def hide_line(layer = None):
 
-    if layer == None:
-        for i in arange(len(cls()) - 1, -1, -1):
-            if getp(cl(i), 'visible') == True:
-                setp(cl(i), 'visible', False)
-                return
-    else:
-        if type(layer) == list:
-            for i in arange(layer[0], layer[1]):
-                if getp(cl(i), 'visible') == True:
-                    setp(cl(i), 'visible', False)
-        else:
-            setp(cl(layer), 'visible', False)
+def hide_line(layer = -1):
+
+	if type(layer) == int:
+		layer = [layer]
+
+	for i in layer:
+		setp(ca(i), 'visible', False)
 
 
-def show_line(layer = None):
 
-    if layer == None:
-        for i in range(len(cls())):
-            if getp(cl(i), 'visible') == False:
-                setp(cl(i), 'visible', True)
-                return
-    else:
-        if type(layer) == list:
-            for i in arange(layer[0], layer[1]):
-                if getp(cl(i), 'visible') == False:
-                    setp(cl(i), 'visible', True)
-        else:
-            setp(cl(layer), 'visible', True)
+def show_line(layer = -1):
+
+	if type(layer) == int:
+		layer = [layer]
+
+	for i in layer:
+		setp(ca(i), 'visible', True)
 
 
 
 def show_all_lines():
 
-    for i in cls():
+    for i in cla():
         setp(i, 'visible', True)
+
 
 
 def hide_all_lines():
 
-    for i in cls():
+    for i in cla():
         setp(i, 'visible', False)
 
 
@@ -567,51 +597,58 @@ def remove_last_patch():
 		draw()
 
 
+
+def fastgen(a, b, cond=True):
+
+	return (i for i in range(a, b) if cond)
+
+
+
 def line_matrix(xstep = 1, ystep = 1, bottom = None, top = None):
 
-    xmin = gca().lines[0].get_xdata().min()
-    xmax = gca().lines[0].get_xdata().max()
-    ymin = gca().lines[0].get_ydata().min()
-    ymax = gca().lines[0].get_ydata().max()
+	xmin = getp(cv(0), 'xdata').min()
+	xmax = getp(cv(0), 'xdata').max()
+	ymin = getp(cv(0), 'ydata').min()
+	ymax = getp(cv(0), 'ydata').max()
 
-    xx, yy = meshgrid(arange(xmin, xmax, xstep), arange(ymin, ymax, ystep))
+	xx, yy = meshgrid(arange(xmin, xmax, xstep), arange(ymin, ymax, ystep))
 
-    cc = 0*xx
+	cc = 0.0*xx
 
-    print("grid xx: " + str(len(xx)) + "x" + str(len(xx[0])))
-    print("grid yy: " + str(len(yy)) + "x" + str(len(yy[0])))
-    print("grid cc: " + str(len(cc)) + "x" + str(len(cc[0])))
+	print("grid xx: " + str(len(xx)) + "x" + str(len(xx[0])))
+	print("grid yy: " + str(len(yy)) + "x" + str(len(yy[0])))
+	print("grid cc: " + str(len(cc)) + "x" + str(len(cc[0])))
 
-    intx = range((xmax - xmin)/xstep)
-    inty = range((ymax - ymin)/ystep)
+	intx = xrange(0, int(round((xmax - xmin)/xstep)))
+	inty = xrange(0, int(round((ymax - ymin)/ystep)))
 
-    for j in intx:
-	for k in inty:
-		cc[k][j] = 0
+	for j in intx:
+		for k in inty:
+			cc[k][j] = 0
 
-    if len(gca().lines) == 1:
-        offset = 1
-    else:
-        offset = 0
+	if len(clv()) == 1:
+		offset = 1
+	else:
+		offset = 0
 
-    for n in range(len(gca().lines)):
-        if bottom != None:
-            if n < bottom:
-                n = bottom
-        if top != None:
-            if n > top:
-                n = top
-        data = gca().lines[n].get_xydata()
-        for i in range(len(data)):
-                j = (data[i][1] - ymin)/ystep
-                k = (data[i][0] - xmin)/xstep
-                # print("j, k: " + str(j) + ", " + str(k))
-                try:
-                    cc[round(j)][round(k)] = n + offset
-                except:
-                    print("oups, stopped @ " + str(i) + "/" + str(len(data)))
+	for n in xrange(len(clv())):
+		if bottom != None:
+			if n < bottom:
+				n = bottom
+		if top != None:
+			if n > top:
+				n = top
+		data = getp(cv(n), 'xydata')
+		for i in xrange(len(data)):
+				j = (data[i][1] - ymin)/ystep
+				k = (data[i][0] - xmin)/xstep
+				# print("j, k: " + str(j) + ", " + str(k))
+				try:
+					cc[round(j)][round(k)] = n + offset
+				except:
+					None #print("oups, stopped @ " + str(i) + "/" + str(len(data)))
 
-    return xx, yy, cc
+	return xx, yy, cc
 
 
 

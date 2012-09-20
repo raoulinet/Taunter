@@ -307,38 +307,37 @@ def cE(num = -1):
 
 
 def colorize(palette = "fancy", offset = 0, period = None, reverse = False):
-	"""
-	to colorize lines depdening of layers
-	"""
 
 	if type(palette) == str:
 		if palette == "fancy":
 			colors = fancy_colors
+
+		elif palette == "web":
+			colors = web_colors
+
+		elif palette == "brown":
+			colors = brown_colors
+
 		else:
-			if palette == "web":
-				colors = web_colors
-			else:
-				if palette == "brown":
-					colors = brown_colors
-				else:
-					colors = default_colors
+			colors = default_colors
+
 	elif type(palette) == list:
 		colors = palette
+
 	else:
 		colors = default_colors
 
 	if period == None:
 		period = len(colors)
 
-	n = len(gca().lines)
-
+	n = len(clv())
 
 	if (reverse):
 		colors.reverse()
 
 	for i in range(n):
 		tmp_col = colors[i%period + offset%(len(colors) - 1)]
-		setp(cl(i), 'color', tmp_col, 'mfc', tmp_col, 'mec', tmp_col)
+		setp(cv(i), 'color', tmp_col, 'mfc', tmp_col, 'mec', tmp_col)
 
 	draw()
 
